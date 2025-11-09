@@ -4,9 +4,20 @@
   "controllerPathGlobs": ["src/controllers/*controller.ts"],
   "spec": {
     "outputDirectory": "./docs",
-    "specVersion": 3
+    "specVersion": 3,
+        "servers": [
+      {
+        "url": "http://localhost:8089",
+        "description": "localhost (default port)"
+      },
+      {
+        "url": "https://jaipuroxy.onrender.com",
+        "description": "OnRender Deployment"
+      }
+    ]
   },
   "routes": {
     "routesDir": "./src/generated"
   }
+
 }

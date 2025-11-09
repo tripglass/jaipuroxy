@@ -20,6 +20,14 @@ const requestClient = axios.create({
 
 @Route("api/gai")
 export class GAIController extends Controller {
+  /**
+   * Translates a JAI request into a Google AI request, sends it to GAI, then translates the response back to JAI format.
+   * @param body Mandatory. The JAI request body.
+   * @param authorization Mandatory. Needs to be 'Bearer <GoogleAI_API_KEY>', automatically set by JAI if you put in your Google AI Studio API key in the proxy config.
+   * @param systemPromptMode Optional. Sets "system instructions" which the model will adhere more strictly to. LOCAL loads the system prompt in the server file system, i.e. systemprompt.md - use if you are running it locally, or you want to use the server's "default" system prompt. CONTEXT reads whatever contents put between <systemprompt>...</systemprompt> in the first message of the conversation and uses that as the system prompt. If not specified, no system prompt is set. 
+   * @param logReasoning Optional. For running locally: If available, reasoning will be logged to console.
+   * @returns JAI compatible response from GAI.
+   */
   @Post("proxy")
   @Response(401, "Unauthorized")
   @Response(500, "Internal Error")

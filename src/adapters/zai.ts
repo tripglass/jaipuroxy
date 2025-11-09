@@ -1,13 +1,20 @@
 import type { JAIChoice, JAIMessage, JAIRequest, JAIResponse } from "./jai";
 
-export const ZAI_URL = "https://api.z.ai/api/paas/v4/chat/completions";
+export const ZAI_BASE_URL = "https://api.z.ai/api";
+export const ZAI_CHAT_COMPLETIONS_ENDPOINT = "/paas/v4/chat/completions";
+export const ZAI_CODING_PATH = "/coding";
 
+export enum ZAIEndpoints {
+    CHAT = "chat",
+    CODING = "coding"
+}
 
 export interface Thinking {
     type: "enabled" | "disabled"
 }
 
-export interface ZAIRequest extends JAIRequest {
+export interface ZAIRequest extends Omit<JAIRequest, 'temperature'> {
+    temperature?: number, //ZAI CODING api doesn't support temperature
     thinking?: Thinking,
 } 
 

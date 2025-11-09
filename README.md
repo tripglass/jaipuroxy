@@ -25,15 +25,99 @@ This is currently implemented for:
 
 Gemini has a different API than e.g. OpenRouter. JAI does not support Gemini's request/response format out of the box, so this proxy does the translation. Reasoning is enabled via selected model - either you're using `flash` (which does not reason) or `pro` (which does).
 
+### Unblock Content Filters
+
+This proxy sets Gemini's content filters to the most permissive setting so we can play like adults. It's your own responsibility to make sure you're not breaking Gemini's Terms of Service.
+
 ### System Prompt
 
-This proxy additionally supports passing along a **system prompt**, which will make Gemini adhere more strictly to your instructions. (It could be used to experimentally use a Chain-of-Thought with `flash`...) This isn't dynamic yet, so if you want to use your own system prompt, you have to run your own proxy...
+This proxy additionally supports setting a **system prompt**, which will make Gemini adhere more strictly to your instructions. (It could be used to experimentally use a Chain-of-Thought with `flash`...) 
+
+Heuristic checks are stricter for Gemini's `systemInstruction` parameter than message contents and appear independent from safety settings. If you keep getting a `PROHIBITED_CONTENT` response, chances are that the checks detected something in your instructions that they identify as designed to break Gemini's ToS. In that case, try to rephrase your instructions.
+
+There are two options for passing along a system prompt:
+
+#### CONTEXT
+
+With this option, you can use the **Custom Prompt** field in your JanitorAI proxy configuration to pass along a system prompt: Simply enclose your instructions in the tags <systemprompt>...</systemprompt> and they will be passed along as `systemInstruction` for Gemini. 
+
+![Screenshot of "Edit Proxy Configuration" form on Janitor.AI. The optional Custom Prompt field contains the text <systemprompt>Write like a big boi</systemprompt> for demonstration purposes.](readme-assets/custompromptexample.png)
+
+(Technically, This option looks at the first message and loads whatever between the first instance of <systemprompt>...</systemprompt> it can find, so multiples won't do anything.)
+
+#### LOCAL
+
+This option uses the system prompt inside `systemprompt.md` on the server's local file system. If you're running this locally or making your own deployment, you can use this for your own prompt, or just use my instruction set for shits and giggles.
 
 ## OpenRouter Presets
 
-This proxy also supports using **OpenRouter presets**. You can use those to set the **system prompt** on OpenRouter, select and exclude providers, and more. (Disappointingly enough, presets do not support setting the `reasoning` flag.) 
+This proxy also supports using **OpenRouter presets**. You can set those up your OpenRouter settings under **Presets**. Use those to set the **system prompt** on OpenRouter, select and exclude providers, and more. (Disappointingly enough, presets do not support setting the `reasoning` flag.) You will need the full identifier to use it with JAIPuR.
 
+![Screenshot of OpenRouter "Presets" view with red arrows pointing out the menu point "Presets", the field where the system prompt goes, and the input field that lets the user copy the preset identifier.](readme-assets/oropresets.png)
 
+## Z.AI Chat & Coding endpoints
+
+This proxy supports using either the regular Z.AI chat completions endpoint or the special `/coding` API included with a coding subscription. If you keep getting error `429` when using the `/chat` endpoint, you probably want the `/coding` one.
+
+# Use
+
+JAIPuR has to be running somewhere. Then you can configure your proxy normally: Set the URL and use the endpoint for the provider you need, optionally add query parameters, enter the model name as it used by this provider, and add your API key for this provider.
+
+![Screenshot of "Edit Proxy Configuration" form on Janitor.AI](readme-assets/jaiproxyconf.png)
+
+Here's the [Swagger-UI](https://tripglass.github.io/jaipuroxy/)
+
+Here are some examples:
+
+**Gemini:**
+
+`/api/gai/proxy` 
+
+Use Google AI/Gemini API. Whether reasoning is enable depends on the model. No system prompt is set (but everything is passed along normally). 
+
+`/api/gai/proxy?systemPromptMode=CONTEXT` 
+
+Use Google AI/Gemini API. System prompt will be set from whatever is between <systemprompt>...</systemprompt> tags in your **Custom Prompt** settings.
+
+`/api/gai/proxy?logReasoning=true` 
+
+Use Google AI/Gemini API. No system prompt is set. Log reasoning results (if available) to local console. (This only benefits you if you're running the server locally.)
+
+`/api/gai/proxy?systemPromptMode=LOCAL&logReasoning=true` 
+
+Use Google AI/Gemini API. System prompt is loaded from `systemprompt.md` on server file system. Log reasoning results (if available) to local console. (This only benefits you if you're running the server locally.)
+
+**OpenRouter:**
+
+`/api/oro/thinky`
+
+Use OpenRouter API, enable reasoning. Make sure you're using a model that supports reasoning or else this proxy does nothing.
+
+`/api/oro/thinky?preset=@preset/tripglass-wurstsalat`
+
+Use OpenRouter API, enable reasoning and use OpenRouter preset `@preset/tripglass-wurstsalat`.
+
+`/api/oro/thinky?preset=@preset/tripglass-wurstsalat&logReasoning=true`
+
+Use OpenRouter API, enable reasoning, use OpenRouter preset `@preset/tripglass-wurstsalat`, log reasoning results (if available) to local console. (This only benefits you if you're running the server locally.)
+
+`/api/oro/thinky?logReasoning=true`
+
+Use OpenRouter API, enable reasoning, log reasoning results (if available) to local console. (This only benefits you if you're running the server locally.)
+
+**Z.AI:**
+
+`api/zai/thinky/chat`
+
+Use `/chat/completions` endpoint on Z.AI for request, enable reasoning.
+
+`api/zai/thinky/coding`
+
+Use `/coding` specific API on Z.AI for request, enable reasoning.
+
+`api/zai/thinky/coding?logReasoning=true`
+
+Use `/coding` specific API on Z.AI for request, enable reasoning, log reasoning results to local console. (This only benefits you if you're running the server locally.)
 
 # About this project
 
@@ -41,9 +125,23 @@ This proxy also supports using **OpenRouter presets**. You can use those to set 
 
 Base technologies are Node & TypeScript. API is built on express & tsoa, proxy calls use axios and the Google GenAI SDK. Testing with vitest.
 
+## Run Local
+
+You're gonna need node and npm to run this project locally.
+
+`npm i` to install dependencies, then either:
+
+`npm run dev` (for debug mode)
+
+Or:
+
+`npm run start` (for regular mode)
+
+After changes to the API, you have to regenerate routes with `npm run tsoa:gen`
+
 ## Questions
 
-### Why no Chutes?
+### Why no Chutes.ai?
 
 Last time I checked, the Chutes.ai API did not offer a flag for users to explicitly enable reasoning for a request. Instead, it probably depends on the model whether some magic is happening or reasoning just never gets activated. Either way, it looks like my proxy **can't** help here.
 
@@ -65,6 +163,10 @@ Dunno? Compare the features and the code (if the full source is publically avail
 - I like knowing what code does, which is easiest when I have written it 
 - I like messing around and experimenting
 - I am a developer
+
+### What happens with my API keys?
+
+The code itself doesn't log them. The rest depends on where the code is run. If you run it locally, you have it under control. If you deploy the code somewhere, it depends on where it's running, no?
 
 ### Why "JAIPuR"?
 

@@ -16,3 +16,7 @@ export enum JAIErrors {
 export enum RequestErrors {
     MISSING_AUTHORIZATION_HEADER = "Missing Authorization header - did you set an API key?",
 }
+
+export enum ZAIErrors {
+    MISSING_ENDPOINT = "Missing ZAI endpoint parameter - please specify CHAT or CODING.",
+}

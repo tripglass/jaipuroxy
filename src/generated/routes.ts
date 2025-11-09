@@ -6,7 +6,7 @@ import {  fetchMiddlewares, ExpressTemplateService } from '@tsoa/runtime';
 // WARNING: This file was auto-generated with tsoa. Please do not modify it. Re-run tsoa to re-generate this file: https://github.com/lukeautry/tsoa
 import { ZAIController } from './../controllers/zaicontroller';
 // WARNING: This file was auto-generated with tsoa. Please do not modify it. Re-run tsoa to re-generate this file: https://github.com/lukeautry/tsoa
-import { OAIController } from './../controllers/oaicontroller';
+import { OROController } from './../controllers/orocontroller';
 // WARNING: This file was auto-generated with tsoa. Please do not modify it. Re-run tsoa to re-generate this file: https://github.com/lukeautry/tsoa
 import { GAIController } from './../controllers/gaicontroller';
 import type { Request as ExRequest, Response as ExResponse, RequestHandler, Router } from 'express';
@@ -38,27 +38,27 @@ export function RegisterRoutes(app: Router) {
 
 
     
-        const argsZAIController_zaiProxy: Record<string, TsoaRoute.ParameterSchema> = {
+        const argsZAIController_zaiProxyChat: Record<string, TsoaRoute.ParameterSchema> = {
                 body: {"in":"body","name":"body","required":true,"dataType":"any"},
                 authorization: {"in":"header","name":"authorization","dataType":"string"},
                 logReasoning: {"in":"query","name":"logReasoning","dataType":"boolean"},
         };
-        app.post('/api/zai/thinky',
+        app.post('/api/zai/thinky/chat',
             ...(fetchMiddlewares<RequestHandler>(ZAIController)),
-            ...(fetchMiddlewares<RequestHandler>(ZAIController.prototype.zaiProxy)),
+            ...(fetchMiddlewares<RequestHandler>(ZAIController.prototype.zaiProxyChat)),
 
-            async function ZAIController_zaiProxy(request: ExRequest, response: ExResponse, next: any) {
+            async function ZAIController_zaiProxyChat(request: ExRequest, response: ExResponse, next: any) {
 
             // WARNING: This file was auto-generated with tsoa. Please do not modify it. Re-run tsoa to re-generate this file: https://github.com/lukeautry/tsoa
 
             let validatedArgs: any[] = [];
             try {
-                validatedArgs = templateService.getValidatedArgs({ args: argsZAIController_zaiProxy, request, response });
+                validatedArgs = templateService.getValidatedArgs({ args: argsZAIController_zaiProxyChat, request, response });
 
                 const controller = new ZAIController();
 
               await templateService.apiHandler({
-                methodName: 'zaiProxy',
+                methodName: 'zaiProxyChat',
                 controller,
                 response,
                 next,
@@ -70,28 +70,60 @@ export function RegisterRoutes(app: Router) {
             }
         });
         // WARNING: This file was auto-generated with tsoa. Please do not modify it. Re-run tsoa to re-generate this file: https://github.com/lukeautry/tsoa
-        const argsOAIController_oaiProxy: Record<string, TsoaRoute.ParameterSchema> = {
+        const argsZAIController_zaiProxyCoding: Record<string, TsoaRoute.ParameterSchema> = {
                 body: {"in":"body","name":"body","required":true,"dataType":"any"},
-                preset: {"in":"query","name":"preset","dataType":"string"},
-                logReasoning: {"in":"query","name":"logReasoning","dataType":"boolean"},
                 authorization: {"in":"header","name":"authorization","dataType":"string"},
+                logReasoning: {"in":"query","name":"logReasoning","dataType":"boolean"},
         };
-        app.post('/api/oai/thinky',
-            ...(fetchMiddlewares<RequestHandler>(OAIController)),
-            ...(fetchMiddlewares<RequestHandler>(OAIController.prototype.oaiProxy)),
+        app.post('/api/zai/thinky/coding',
+            ...(fetchMiddlewares<RequestHandler>(ZAIController)),
+            ...(fetchMiddlewares<RequestHandler>(ZAIController.prototype.zaiProxyCoding)),
 
-            async function OAIController_oaiProxy(request: ExRequest, response: ExResponse, next: any) {
+            async function ZAIController_zaiProxyCoding(request: ExRequest, response: ExResponse, next: any) {
 
             // WARNING: This file was auto-generated with tsoa. Please do not modify it. Re-run tsoa to re-generate this file: https://github.com/lukeautry/tsoa
 
             let validatedArgs: any[] = [];
             try {
-                validatedArgs = templateService.getValidatedArgs({ args: argsOAIController_oaiProxy, request, response });
+                validatedArgs = templateService.getValidatedArgs({ args: argsZAIController_zaiProxyCoding, request, response });
 
-                const controller = new OAIController();
+                const controller = new ZAIController();
 
               await templateService.apiHandler({
-                methodName: 'oaiProxy',
+                methodName: 'zaiProxyCoding',
+                controller,
+                response,
+                next,
+                validatedArgs,
+                successStatus: undefined,
+              });
+            } catch (err) {
+                return next(err);
+            }
+        });
+        // WARNING: This file was auto-generated with tsoa. Please do not modify it. Re-run tsoa to re-generate this file: https://github.com/lukeautry/tsoa
+        const argsOROController_oroProxy: Record<string, TsoaRoute.ParameterSchema> = {
+                body: {"in":"body","name":"body","required":true,"dataType":"any"},
+                preset: {"in":"query","name":"preset","dataType":"string"},
+                logReasoning: {"in":"query","name":"logReasoning","dataType":"boolean"},
+                authorization: {"in":"header","name":"authorization","dataType":"string"},
+        };
+        app.post('/api/oro/thinky',
+            ...(fetchMiddlewares<RequestHandler>(OROController)),
+            ...(fetchMiddlewares<RequestHandler>(OROController.prototype.oroProxy)),
+
+            async function OROController_oroProxy(request: ExRequest, response: ExResponse, next: any) {
+
+            // WARNING: This file was auto-generated with tsoa. Please do not modify it. Re-run tsoa to re-generate this file: https://github.com/lukeautry/tsoa
+
+            let validatedArgs: any[] = [];
+            try {
+                validatedArgs = templateService.getValidatedArgs({ args: argsOROController_oroProxy, request, response });
+
+                const controller = new OROController();
+
+              await templateService.apiHandler({
+                methodName: 'oroProxy',
                 controller,
                 response,
                 next,

@@ -44,6 +44,7 @@ export function translateJAItoGAI(body: JAIRequest, includeThoughts?: boolean, s
 
   for (const [index, msg] of body.messages.entries()) {
     if (msg.content) {
+      let content = msg.content;
       if (msg.content.length == 0) {
           console.warn("GAI request has empty parts, intentional?");
       } 
@@ -53,11 +54,12 @@ export function translateJAItoGAI(body: JAIRequest, includeThoughts?: boolean, s
           console.error("No system prompt found in first message for CONTEXT mode.");
           throw new Error(GAIErrors.MISSING_CONTEXT_SYSTEM_PROMPT);
         }
+        content.replace(systemPrompt, ""); //remove system prompt from message to save tokens
       }
       const role = msg.role === "user" ? "user" : "model";
       googleAIContents.push({
         role: role,
-        parts: [{ text: msg.content }],
+        parts: [{ text: content }],
       });
     }
   }
