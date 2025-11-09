@@ -5,11 +5,12 @@
   "main": "main.ts",
   "scripts": {
     "dev": "set NODE_DEBUG=module && ts-node src/main.ts",
-    "build": "tsoa spec-and-routes",
+    "build": "tsoa spec-and-routes && tsc",
     "tsoa:routes": "tsoa routes --config tsoa.json",
     "tsoa:spec": "tsoa spec --config tsoa.json",
     "tsoa:gen": "npm run tsoa:routes && npm run tsoa:spec",
     "start": "ts-node src/main.ts",
+    "start-prod": "node dist/main.js",
     "test": "vitest"
   },
   "keywords": [],
