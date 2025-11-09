@@ -263,10 +263,12 @@
 	},
 	"servers": [
 		{
-			"url": "https://[object Object]/"
+			"url": "http://localhost:8089",
+			"description": "localhost (default port)"
 		},
 		{
-			"url": "https://[object Object]/"
+			"url": "https://jaipuroxy.onrender.com",
+			"description": "OnRender Deployment"
 		}
 	]
 }
