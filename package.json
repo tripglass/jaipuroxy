@@ -9,7 +9,6 @@
     "tsoa:routes": "tsoa routes --config tsoa.json",
     "tsoa:spec": "tsoa spec --config tsoa.json",
     "tsoa:gen": "npm run tsoa:routes && npm run tsoa:spec",
-    "swagger:copy": "shx cp -r swagger/* dist",
     "start": "ts-node src/main.ts",
     "test": "vitest"
   },

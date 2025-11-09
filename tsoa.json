@@ -3,7 +3,7 @@
   "noImplicitAdditionalProperties": "silently-remove-extras",
   "controllerPathGlobs": ["src/controllers/*Controller.ts"],
   "spec": {
-    "outputDirectory": "./swagger",
+    "outputDirectory": "./docs",
     "specVersion": 3
   },
   "routes": {
