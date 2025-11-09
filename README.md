@@ -39,11 +39,11 @@ There are two options for passing along a system prompt:
 
 #### CONTEXT
 
-With this option, you can use the **Custom Prompt** field in your JanitorAI proxy configuration to pass along a system prompt: Simply enclose your instructions in the tags <systemprompt>...</systemprompt> and they will be passed along as `systemInstruction` for Gemini. 
+With this option, you can use the **Custom Prompt** field in your JanitorAI proxy configuration to pass along a system prompt: Simply enclose your instructions in the tags `<systemprompt>...</systemprompt>` and they will be passed along as `systemInstruction` for Gemini. 
 
 ![Screenshot of "Edit Proxy Configuration" form on Janitor.AI. The optional Custom Prompt field contains the text <systemprompt>Write like a big boi</systemprompt> for demonstration purposes.](readme-assets/custompromptexample.png)
 
-(Technically, This option looks at the first message and loads whatever between the first instance of <systemprompt>...</systemprompt> it can find, so multiples won't do anything.)
+(Technically, This option looks at the first message and loads whatever between the first instance of `<systemprompt>...</systemprompt>` it can find, so multiples won't do anything.)
 
 #### LOCAL
 
@@ -77,7 +77,7 @@ Use Google AI/Gemini API. Whether reasoning is enable depends on the model. No s
 
 `/api/gai/proxy?systemPromptMode=CONTEXT` 
 
-Use Google AI/Gemini API. System prompt will be set from whatever is between <systemprompt>...</systemprompt> tags in your **Custom Prompt** settings.
+Use Google AI/Gemini API. System prompt will be set from whatever is between `<systemprompt>...</systemprompt>` tags in your **Custom Prompt** settings.
 
 `/api/gai/proxy?logReasoning=true` 
 
