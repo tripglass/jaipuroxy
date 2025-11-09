@@ -1,0 +1,37 @@
+{
+  "name": "jaipurxy",
+  "version": "1.0.0",
+  "description": "",
+  "main": "main.ts",
+  "scripts": {
+    "dev": "set NODE_DEBUG=module && ts-node src/main.ts",
+    "build": "tsoa spec-and-routes",
+    "tsoa:routes": "tsoa routes --config tsoa.json",
+    "tsoa:spec": "tsoa spec --config tsoa.json",
+    "tsoa:gen": "npm run tsoa:routes && npm run tsoa:spec",
+    "swagger:copy": "shx cp -r swagger/* dist",
+    "start": "ts-node src/main.ts",
+    "test": "vitest"
+  },
+  "keywords": [],
+  "author": "",
+  "license": "ISC",
+  "dependencies": {
+    "@google/genai": "^1.25.0",
+    "axios": "^1.12.2",
+    "dotenv": "^17.2.3",
+    "express": "^5.1.0",
+    "reflect-metadata": "^0.2.2"
+  },
+  "devDependencies": {
+    "@tsconfig/node-lts": "^22.0.2",
+    "@tsconfig/node-ts": "^23.6.1",
+    "@types/express": "^5.0.3",
+    "@types/node": "^24.10.0",
+    "shx": "^0.4.0",
+    "ts-node": "^10.9.2",
+    "tsoa": "^6.6.0",
+    "typescript": "^5.9.2",
+    "vitest": "^4.0.8"
+  }
+}
