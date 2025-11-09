@@ -1,6 +1,6 @@
 import { Body, Controller, Header, Post, Query, Route, Response } from "tsoa";
 import axios from "axios";
-import { RequestErrors, ZAIErrors } from "../errors";
+import { RequestError, ResponseError, ZAIError } from "../errors";
 import {
   addZAIReasoningToJAI,
   getZAIReasoningFromResponse,
@@ -60,18 +60,17 @@ export class ZAIController extends Controller {
   async zaiProxy(body: any, endpoint: ZAIEndpoint, authorization?: string, logReasoning?: boolean) {
     if (!authorization) {
       this.setStatus(401);
-      return { error: RequestErrors.MISSING_AUTHORIZATION_HEADER };
+      return { error: RequestError.MISSING_AUTHORIZATION_HEADER };
     }
     try {
-      console.debug("Incoming request:");
-      console.debug(body);
-      
+      //console.debug("Incoming request:");
+      //console.debug(body);
+      console.debug("Applying reasoning");
       let puffpuffpass = addZAIReasoningToJAI(body);
 
-      console.debug(`Used ZAI endpoint ${endpoint}`);
 
       if (!endpoint || (endpoint !== ZAIEndpoint.CHAT && endpoint !== ZAIEndpoint.CODING)) {
-          throw new Error( ZAIErrors.MISSING_ENDPOINT);
+          throw new Error( ZAIError.MISSING_ENDPOINT);
       } 
 
       const ZAI_URL = endpoint === ZAIEndpoint.CODING ?
@@ -90,18 +89,20 @@ export class ZAIController extends Controller {
           Authorization: authorization,
         },
       });
-      console.debug("Response from ZAI:");
-      console.debug(response.data);
+      if (!response || !response.data) {
+        throw new Error(ResponseError.MISSING_DATA);
+      } 
 
-      const reasoning = getZAIReasoningFromResponse(response);
-      if (reasoning && logReasoning) {
-        console.log("Reasoning:");
-        console.log(reasoning);
+      if (logReasoning) {
+        const reasoning = getZAIReasoningFromResponse(response);
+        if (reasoning) {
+          console.log("Reasoning:");
+          console.log(reasoning);
+        }
       }
       this.setStatus(200);
       return response.data;
     } catch (err: any) {
-      console.log("!! ERROR !!")
       console.error(err.message);
       this.setStatus(500);
       return { error: "Something went wrong: " + err.message };

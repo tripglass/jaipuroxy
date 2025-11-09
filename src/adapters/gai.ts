@@ -8,7 +8,7 @@ import {
   SafetySetting,
 } from "@google/genai";
 import { JAIRequest, JAIResponse } from "./jai";
-import { GAIErrors, JAIErrors } from "../errors";
+import { GAIError, JAIError } from "../errors";
 import { getLocalSystemPrompt } from "../customprompt";
 
 export const GAISystemPromptRegex =  /<systemprompt>([\s\S]+)<\/systemprompt>/
@@ -28,7 +28,7 @@ export async function generateContent(
 
 export function translateJAItoGAI(body: JAIRequest, includeThoughts?: boolean, systemPromptMode?: GAISystemPromptMode | false): GenerateContentParameters {
   if (!body || !body.messages) {
-    throw new Error(JAIErrors.MISSING_MESSAGES);
+    throw new Error(JAIError.MISSING_MESSAGES);
   }
 
   const googleAIContents = [];
@@ -38,7 +38,7 @@ export function translateJAItoGAI(body: JAIRequest, includeThoughts?: boolean, s
     systemPrompt = getLocalSystemPrompt();
     if (!systemPrompt) {
       console.error("No local system prompt found in systemprompt.md for LOCAL mode.");
-      throw new Error(GAIErrors.MISSING_LOCAL_SYSTEM_PROMPT);
+      throw new Error(GAIError.MISSING_LOCAL_SYSTEM_PROMPT);
     }
   }
 
@@ -52,7 +52,7 @@ export function translateJAItoGAI(body: JAIRequest, includeThoughts?: boolean, s
         systemPrompt = findSystemPromptInMessage(msg.content);
         if (!systemPrompt) {
           console.error("No system prompt found in first message for CONTEXT mode.");
-          throw new Error(GAIErrors.MISSING_CONTEXT_SYSTEM_PROMPT);
+          throw new Error(GAIError.MISSING_CONTEXT_SYSTEM_PROMPT);
         }
         content.replace(systemPrompt, ""); //remove system prompt from message to save tokens
       }
@@ -64,7 +64,7 @@ export function translateJAItoGAI(body: JAIRequest, includeThoughts?: boolean, s
     }
   }
     if (googleAIContents.length == 0) {
-    throw new Error(JAIErrors.MISSING_CONTENTS);
+    throw new Error(JAIError.MISSING_CONTENTS);
   }
 
   let params: GenerateContentParameters = {
@@ -87,14 +87,14 @@ export function translateGAItoJAI(body: GenerateContentResponse) {
   const model = body.modelVersion;
 
   if (body.promptFeedback?.blockReason) {
-    throw new Error(GAIErrors.BLOCKED_CONTENT)
+    throw new Error(GAIError.BLOCKED_CONTENT)
   }
   if (messageContent === undefined && model === undefined) {
-    throw new Error(GAIErrors.MISSING_FIELDS);
+    throw new Error(GAIError.MISSING_FIELDS);
   } else if (messageContent === undefined) {
-    throw new Error(GAIErrors.MISSING_CONTENTS);
+    throw new Error(GAIError.MISSING_CONTENTS);
   } else if (model === undefined) {
-    throw new Error(GAIErrors.MISSING_MODEL);
+    throw new Error(GAIError.MISSING_MODEL);
   }
 
   // Map Gemini's FinishReason enum to a string.

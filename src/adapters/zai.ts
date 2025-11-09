@@ -55,5 +55,5 @@ export function addZAIReasoningToJAI(body: JAIRequest): ZAIRequest | null {
 }
 
 export function getZAIReasoningFromResponse(response: any): string | undefined {
-    return response.data.choices[0].message?.reasoning_content;
+    return response.data.choices?.[0].message?.reasoning_content;
 }

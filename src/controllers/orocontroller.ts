@@ -14,8 +14,9 @@ import {
   getOROReasoningFromResponse,
   ORO_URL,
 } from "../adapters/oro";
-import { RequestErrors } from "../errors";
+import { RequestError, ResponseError } from "../errors";
 import axios from "axios";
+import { log } from "console";
 
 const requestClient = axios.create({
   timeout: 180000,
@@ -47,11 +48,11 @@ export class OROController extends Controller {
     // Validate auth header
     if (!authorization) {
       this.setStatus(401);
-      return { error: RequestErrors.MISSING_AUTHORIZATION_HEADER };
+      return { error: RequestError.MISSING_AUTHORIZATION_HEADER };
     }
     try {
-      console.debug("Incoming request:");
-      console.debug(body);
+      //console.debug("Incoming request:");
+      //console.debug(body);
       console.debug("Adding reasoning");
       const puffpuffpass = addOROReasoningToJAI(body);
       if (puffpuffpass && preset) {
@@ -69,10 +70,16 @@ export class OROController extends Controller {
         },
       });
 
-      const reasoning = getOROReasoningFromResponse(response);
-      if (reasoning && logReasoning) {
-        console.log("Reasoning:");
-        console.log(reasoning);
+      if (!response || !response.data) {
+        throw new Error(ResponseError.MISSING_DATA);
+      } 
+      
+      if (logReasoning) {
+        const reasoning = getOROReasoningFromResponse(response);
+        if (reasoning) {
+          console.log("Reasoning:");
+          console.log(reasoning);
+        }
       }
       this.setStatus(200);
       return response.data;

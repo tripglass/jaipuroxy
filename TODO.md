@@ -1,9 +1,12 @@
 # MVP
 
-- [ ] test Z.AI integration
+- [x] test Z.AI integration
 - [x] figure out query parameters
-- [ ] swagger docs
+- [x] swagger docs
 - [x] extract local custom prompt into file
   
+# IMPORTANT
+
+- [ ] FIX THE GODDAMN LOG LEVELS!!!!! THIS SHIT ISN'T JAVA!
 
 # Nice to have

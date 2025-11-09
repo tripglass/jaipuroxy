@@ -1,4 +1,4 @@
-export enum GAIErrors {
+export enum GAIError {
     MISSING_CONTENTS = "GAI request is missing contents for JAI translation.",
     MISSING_MODEL = "GAI request is missing model for JAI translation.",
     MISSING_FIELDS = "GAI response is missing required fields for JAI translation.",
@@ -8,15 +8,19 @@ export enum GAIErrors {
 
 }
 
-export enum JAIErrors {
+export enum JAIError {
     MISSING_MESSAGES = "Invalid JAI request: missing messages",
     MISSING_CONTENTS = "Invalid JAI request: no message with contents",
 }
 
-export enum RequestErrors {
+export enum RequestError {
     MISSING_AUTHORIZATION_HEADER = "Missing Authorization header - did you set an API key?",
 }
 
-export enum ZAIErrors {
+export enum ZAIError {
     MISSING_ENDPOINT = "Missing ZAI endpoint parameter - please specify CHAT or CODING.",
+}
+
+export enum ResponseError {
+    MISSING_DATA = "Response is missing data field.",
 }
