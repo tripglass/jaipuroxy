@@ -57,7 +57,7 @@ export class GAIController extends Controller {
       console.debug("Sending request to GAI");
       let response = await generateContent(geminiApiKey, puffpuffpass);
 
-      if (!response || !response.data) {
+      if (!response || !response.candidates || response.candidates.length == 0) {
         throw new Error(ResponseError.MISSING_DATA);
       }
 

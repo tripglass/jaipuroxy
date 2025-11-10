@@ -22,5 +22,5 @@ export enum ZAIError {
 }
 
 export enum ResponseError {
-    MISSING_DATA = "Response is missing data field.",
+    MISSING_DATA = "Response is missing content (e.g. candidates).",
 }
