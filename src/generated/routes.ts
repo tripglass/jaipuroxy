@@ -16,6 +16,11 @@ import type { Request as ExRequest, Response as ExResponse, RequestHandler, Rout
 // WARNING: This file was auto-generated with tsoa. Please do not modify it. Re-run tsoa to re-generate this file: https://github.com/lukeautry/tsoa
 
 const models: TsoaRoute.Models = {
+    "OROReasoningEffort": {
+        "dataType": "refAlias",
+        "type": {"dataType":"union","subSchemas":[{"dataType":"enum","enums":["minimal"]},{"dataType":"enum","enums":["low"]},{"dataType":"enum","enums":["medium"]},{"dataType":"enum","enums":["high"]},{"dataType":"enum","enums":["xhigh"]}],"validators":{}},
+    },
+    // WARNING: This file was auto-generated with tsoa. Please do not modify it. Re-run tsoa to re-generate this file: https://github.com/lukeautry/tsoa
     "GAISystemPromptMode": {
         "dataType": "refEnum",
         "enums": ["LOCAL","CONTEXT"],
@@ -105,6 +110,7 @@ export function RegisterRoutes(app: Router) {
         const argsOROController_oroProxy: Record<string, TsoaRoute.ParameterSchema> = {
                 body: {"in":"body","name":"body","required":true,"dataType":"any"},
                 preset: {"in":"query","name":"preset","dataType":"string"},
+                reasoningEffort: {"in":"query","name":"reasoningEffort","ref":"OROReasoningEffort"},
                 logReasoning: {"in":"query","name":"logReasoning","dataType":"boolean"},
                 authorization: {"in":"header","name":"authorization","dataType":"string"},
         };
@@ -139,6 +145,7 @@ export function RegisterRoutes(app: Router) {
                 body: {"in":"body","name":"body","required":true,"dataType":"any"},
                 authorization: {"in":"header","name":"authorization","dataType":"string"},
                 systemPromptMode: {"in":"query","name":"systemPromptMode","ref":"GAISystemPromptMode"},
+                reasoningEffort: {"in":"query","name":"reasoningEffort","dataType":"double"},
                 logReasoning: {"in":"query","name":"logReasoning","dataType":"boolean"},
         };
         app.post('/api/gai/proxy',

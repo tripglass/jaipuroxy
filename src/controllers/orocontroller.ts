@@ -13,10 +13,12 @@ import {
   addOROReasoningToJAI,
   getOROReasoningFromResponse,
   ORO_URL,
+  OROReasoningEffort,
 } from "../adapters/oro";
 import { RequestError, ResponseError } from "../errors";
 import axios from "axios";
 import { log } from "console";
+
 
 const requestClient = axios.create({
   timeout: 180000,
@@ -42,6 +44,7 @@ export class OROController extends Controller {
   public async oroProxy(
     @Body() body: any,
     @Query() preset?: string,
+    @Query() reasoningEffort?: OROReasoningEffort,
     @Query() logReasoning?: boolean,
     @Header("authorization") authorization?: string
   ): Promise<any> {
@@ -54,7 +57,7 @@ export class OROController extends Controller {
       //console.debug("Incoming request:");
       //console.debug(body);
       console.debug("Adding reasoning");
-      const puffpuffpass = addOROReasoningToJAI(body);
+      const puffpuffpass = addOROReasoningToJAI(body, reasoningEffort, logReasoning);
       if (puffpuffpass && preset) {
         console.debug("Applying preset: " + preset);
         puffpuffpass.preset = preset;

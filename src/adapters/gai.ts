@@ -18,6 +18,7 @@ export enum GAISystemPromptMode {
   CONTEXT = "CONTEXT",
 }
 
+
 export async function generateContent(
   apiKey: string,
   params: GenerateContentParameters
@@ -26,7 +27,7 @@ export async function generateContent(
   return await ai.models.generateContent(params);
 }
 
-export function translateJAItoGAI(body: JAIRequest, includeThoughts?: boolean, systemPromptMode?: GAISystemPromptMode | false): GenerateContentParameters {
+export function translateJAItoGAI(body: JAIRequest, includeThoughts?: boolean, thinkingBudget?: number, systemPromptMode?: GAISystemPromptMode | false): GenerateContentParameters {
   if (!body || !body.messages) {
     throw new Error(JAIError.MISSING_MESSAGES);
   }
@@ -74,7 +75,8 @@ export function translateJAItoGAI(body: JAIRequest, includeThoughts?: boolean, s
       safetySettings: getBlockNoneSafetySettings(),
       systemInstruction: systemPrompt,
       thinkingConfig: {
-        includeThoughts: includeThoughts
+        includeThoughts: includeThoughts,
+        thinkingBudget: thinkingBudget || undefined,
       }
     },
   };

@@ -7,6 +7,16 @@
 		"requestBodies": {},
 		"responses": {},
 		"schemas": {
+			"OROReasoningEffort": {
+				"type": "string",
+				"enum": [
+					"minimal",
+					"low",
+					"medium",
+					"high",
+					"xhigh"
+				]
+			},
 			"GAISystemPromptMode": {
 				"enum": [
 					"LOCAL",
@@ -166,6 +176,14 @@
 						}
 					},
 					{
+						"in": "query",
+						"name": "reasoningEffort",
+						"required": false,
+						"schema": {
+							"$ref": "#/components/schemas/OROReasoningEffort"
+						}
+					},
+					{
 						"description": "Optional. For running locally: If available, reasoning will be logged to console.",
 						"in": "query",
 						"name": "logReasoning",
@@ -235,6 +253,16 @@
 						"required": false,
 						"schema": {
 							"$ref": "#/components/schemas/GAISystemPromptMode"
+						}
+					},
+					{
+						"description": "Optional. Lets you set a determined number of tokens the model may use for reasoning, if you are using a model that is capable of reasoning. Setting this to a positive integer can force gemini-2.5-flash into reasoning mode. For flash: 0 to 24576, for pro: 128 to 32768. -1 lets the model decide.",
+						"in": "query",
+						"name": "reasoningEffort",
+						"required": false,
+						"schema": {
+							"format": "double",
+							"type": "number"
 						}
 					},
 					{

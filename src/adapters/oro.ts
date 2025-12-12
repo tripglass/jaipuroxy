@@ -2,11 +2,13 @@ import type { JAIChoice, JAIMessage, JAIRequest, JAIResponse } from "./jai";
 
 export const ORO_URL = "https://openrouter.ai/api/v1/chat/completions";
 
+export type OROReasoningEffort = "minimal"|"low"|"medium"|"high"|"xhigh";
 
-export interface Reasoning {
+
+export interface OROReasoning {
     // One of the following (not both):
 
-    effort?: "high" | "medium" | "low", // Can be "high", "medium", or "low" (OpenAI-style)
+    effort?: OROReasoningEffort,
 
     max_tokens?: number, // Specific token limit (Anthropic-style)
 
@@ -20,7 +22,7 @@ export interface Reasoning {
 }
 
 export interface ORORequest extends JAIRequest {
-    reasoning?: Reasoning,
+    reasoning?: OROReasoning,
     preset?: string,
 } 
 
@@ -51,13 +53,19 @@ export interface OROtoJAIResponse extends JAIResponse {
     }
 }
 
-export function addOROReasoningToJAI(body: JAIRequest): ORORequest | null {
+export function addOROReasoningToJAI(body: JAIRequest, reasoningEffort?: OROReasoningEffort, logReasoning?: boolean): ORORequest | null {
     if (!body || !body.messages) {
         return null;
     }
     let oairequest: ORORequest = body;
     oairequest.reasoning = {
         enabled: true
+    }
+    if (reasoningEffort) {
+        oairequest.reasoning.effort = reasoningEffort;
+    }
+    if (!logReasoning) {
+        oairequest.reasoning.exclude = true;
     }
     return oairequest;
 }

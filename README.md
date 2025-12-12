@@ -79,6 +79,10 @@ Use Google AI/Gemini API. Whether reasoning is enable depends on the model. No s
 
 Use Google AI/Gemini API. System prompt will be set from whatever is between `<systemprompt>...</systemprompt>` tags in your **Custom Prompt** settings.
 
+`/api/gai/proxy?reasoningEffort=1024`
+
+Use Google AI/Gemini API. EXPERIMENTAL: Sets a predetermined number of tokens the model may use for reasoning, if you are using a model that is capable of reasoning. Setting this to a positive integer can force gemini-2.5-flash into reasoning mode. For flash: 0 to 24576, for pro: 128 to 32768. -1 lets the model decide (but in that case you can also leave out the parameter).
+
 `/api/gai/proxy?logReasoning=true` 
 
 Use Google AI/Gemini API. No system prompt is set. Log reasoning results (if available) to local console. (This only benefits you if you're running the server locally.)
@@ -92,6 +96,10 @@ Use Google AI/Gemini API. System prompt is loaded from `systemprompt.md` on serv
 `/api/oro/thinky`
 
 Use OpenRouter API, enable reasoning. Make sure you're using a model that supports reasoning or else this proxy does nothing.
+
+`/api/oro/thinky?reasoningEffort=high`
+
+Use OpenRouter API, enable reasoning. EXPERIMENTAL: Sets reasoning effort to high for models that support it. Available values:  "minimal", "low", "medium", "high", "xhigh"
 
 `/api/oro/thinky?preset=@preset/tripglass-wurstsalat`
 
