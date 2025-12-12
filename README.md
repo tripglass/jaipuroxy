@@ -23,7 +23,17 @@ This is currently implemented for:
 
 ### API Support
 
-Gemini has a different API than e.g. OpenRouter. JAI does not support Gemini's request/response format out of the box, so this proxy does the translation. Reasoning is enabled via selected model - either you're using `flash` (which does not reason) or `pro` (which does).
+Gemini has a different API than e.g. OpenRouter. JAI does not support Gemini's request/response format out of the box, so this proxy does the translation. 
+
+### Reasoning 
+
+Reasoning behaviour depends on the used model: 
+
+- `pro` always reasons, so it does not have to be enabled. 
+- `flash-lite` is incapable of reasoning. 
+- `flash` can be made to reason circumstantially via prompt, or forced by allotting a certain amount of reasoning tokens to the request. 
+
+The API of this proxy experimentally offers the option to set the used reasoning tokens to a specific number, which should work for `flash` and `pro`. This should force reasoning in `flash` (although it will likely not reason on the same level as `pro`). While reasoning is always active for `pro`, this can serve to fine-tune reasoning effort and total tokens (i.e. cost).
 
 ### Unblock Content Filters
 
