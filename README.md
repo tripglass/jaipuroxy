@@ -41,7 +41,7 @@ This proxy sets Gemini's content filters to the most permissive setting so we ca
 
 ### System Prompt
 
-This proxy additionally supports setting a **system prompt**, which will make Gemini adhere more strictly to your instructions. (It could be used to experimentally use a Chain-of-Thought with `flash`...) 
+This proxy additionally supports setting a **system prompt**, which will make Gemini adhere more strictly to your instructions. 
 
 Heuristic checks are stricter for Gemini's `systemInstruction` parameter than message contents and appear independent from safety settings. If you keep getting a `PROHIBITED_CONTENT` response, chances are that the checks detected something in your instructions that they identify as designed to break Gemini's ToS. In that case, try to rephrase your instructions.
 
@@ -53,17 +53,24 @@ With this option, you can use the **Custom Prompt** field in your JanitorAI prox
 
 ![Screenshot of "Edit Proxy Configuration" form on Janitor.AI. The optional Custom Prompt field contains the text <systemprompt>Write like a big boi</systemprompt> for demonstration purposes.](readme-assets/custompromptexample.png)
 
-(Technically, This option looks at the first message and loads whatever between the first instance of `<systemprompt>...</systemprompt>` it can find, so multiples won't do anything.)
+(Technically, this option looks at the first message and loads whatever between the first instance of `<systemprompt>...</systemprompt>` it can find, so multiples won't do anything. To save on tokens, the first instance of `<systemprompt>...</systemprompt>` will then be removed from the first message before passing it along.)
 
 #### LOCAL
 
 This option uses the system prompt inside `systemprompt.md` on the server's local file system. If you're running this locally or making your own deployment, you can use this for your own prompt, or just use my instruction set for shits and giggles.
 
-## OpenRouter Presets
+## OpenRouter 
 
-This proxy also supports using **OpenRouter presets**. You can set those up your OpenRouter settings under **Presets**. Use those to set the **system prompt** on OpenRouter, select and exclude providers, and more. (Disappointingly enough, presets do not support setting the `reasoning` flag.) You will need the full identifier to use it with JAIPuR.
+### Presets
+
+This proxy supports using **OpenRouter presets**. You can set those up your OpenRouter settings under **Presets**. Use those to set the **system prompt** on OpenRouter, select and exclude providers, and more. (Disappointingly enough, a preset in itself does not support setting the `reasoning` flag.) You will need the full identifier to use it with JAIPuR.
 
 ![Screenshot of OpenRouter "Presets" view with red arrows pointing out the menu point "Presets", the field where the system prompt goes, and the input field that lets the user copy the preset identifier.](readme-assets/oropresets.png)
+
+### Reasoning effort
+
+Some models on OpenRouter allow for more granular configuration of reasoning. This proxy experimentally lets you pass along a reasoning effort level to the model: Options are `minimal`, `low`, `medium`, `high` and `xhigh`. If the model only supports setting a discrete number of reasoning tokens, this number will apparently be calculated based on this option? Feel free to peruse the [OpenRouter docs on reasoning](https://openrouter.ai/docs/guides/best-practices/reasoning-tokens#reasoning-effort-level) for more information.
+ 
 
 ## Z.AI Chat & Coding endpoints
 
@@ -71,7 +78,7 @@ This proxy supports using either the regular Z.AI chat completions endpoint or t
 
 # Use
 
-JAIPuR has to be running somewhere. Then you can configure your proxy normally: Set the URL and use the endpoint for the provider you need, optionally add query parameters, enter the model name as it used by this provider, and add your API key for this provider.
+JAIPuR has to be running somewhere. Then you can configure your proxy normally: Set the URL and use the endpoint for the provider you need, optionally add query parameters, enter the model name as it used by this provider, and add your API key for this provider. You will have to additionally disable "Text Streaming" in the options.
 
 ![Screenshot of "Edit Proxy Configuration" form on Janitor.AI](readme-assets/jaiproxyconf.png)
 

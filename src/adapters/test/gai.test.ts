@@ -7,7 +7,7 @@ import {
   GAISystemPromptMode,
   findSystemPromptInMessage,
 } from "../gai";
-import { GAIErrors, JAIErrors } from "../../errors";
+import { GAIError, JAIError } from "../../errors";
 import { FinishReason } from "@google/genai";
 import { getLocalSystemPrompt } from '../../customprompt'
 
@@ -15,7 +15,7 @@ import { getLocalSystemPrompt } from '../../customprompt'
 
 describe("gai adapter", () => {
   it("throws when missing messages", () => {
-    expect(() => translateJAItoGAI(undefined as any)).toThrow(JAIErrors.MISSING_MESSAGES);
+    expect(() => translateJAItoGAI(undefined as any)).toThrow(JAIError.MISSING_MESSAGES);
   });
 
   it("extracts system prompt in CONTEXT mode and builds params", () => {
@@ -26,7 +26,7 @@ describe("gai adapter", () => {
         { role: "user", content: "say hi" },
       ],
     };
-    const params = translateJAItoGAI(req as any, true, GAISystemPromptMode.CONTEXT);
+    const params = translateJAItoGAI(req as any, true, undefined, GAISystemPromptMode.CONTEXT);
     expect(params.model).toBe("g-model");
     expect(params.config?.systemInstruction).toBe("hello world");
     expect(Array.isArray(params.contents) && params.contents.length).toBe(2);
@@ -43,7 +43,7 @@ describe("gai adapter", () => {
         { role: "user", content: "say hi" },
       ],
     };
-    const params = translateJAItoGAI(req as any, true, GAISystemPromptMode.LOCAL);
+    const params = translateJAItoGAI(req as any, true, undefined, GAISystemPromptMode.LOCAL);
     expect(params.model).toBe("g-model");
     expect(params.config?.systemInstruction).toBe("This is a local system prompt.");
     expect(Array.isArray(params.contents) && params.contents.length).toBe(2);
@@ -57,7 +57,7 @@ describe("gai adapter", () => {
   
   it("errors when CONTEXT mode but no system prompt", () => {
     const req = { model: "g1", messages: [{ role: "system", content: "no tag" }] };
-    expect(() => translateJAItoGAI(req as any, false, GAISystemPromptMode.CONTEXT)).toThrow(GAIErrors.MISSING_CONTEXT_SYSTEM_PROMPT);
+    expect(() => translateJAItoGAI(req as any, false, undefined, GAISystemPromptMode.CONTEXT)).toThrow(GAIError.MISSING_CONTEXT_SYSTEM_PROMPT);
   });
 
 
@@ -75,7 +75,7 @@ describe("gai adapter", () => {
 
   it("throws when blocked content present", () => {
     const resp = { promptFeedback: { blockReason: "any" } } as any;
-    expect(() => translateGAItoJAI(resp)).toThrow(GAIErrors.BLOCKED_CONTENT);
+    expect(() => translateGAItoJAI(resp)).toThrow(GAIError.BLOCKED_CONTENT);
   });
 
   it("getThoughtFromResponse concatenates thought parts", () => {
