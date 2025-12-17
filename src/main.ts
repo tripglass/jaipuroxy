@@ -3,18 +3,21 @@ import express, {
   Request as ExRequest,
   NextFunction,
 } from "express";
+import favicon from "serve-favicon";
 import routes from "./routes";
 import parentLogger from "./logger";
 import { RegisterRoutes } from "./generated/routes";
 import { initPrompt } from "./customprompt";
 import { ValidateError } from "tsoa";
 import { JAIPuroxyError, RequestError } from "./errors";
+import path from "path";
 
 async function main() {
   await initPrompt(); // load once at startup
 
   const app = express();
   app.use(express.json({ limit: "1mb" }));
+  app.use(favicon(path.join(__dirname, 'public', 'favicon.ico')))
 
   app.use("/api", routes);
 
