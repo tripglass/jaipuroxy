@@ -10,6 +10,10 @@ import {
 import { JAIRequest, JAIResponse } from "./jai";
 import { GAIError, JAIError } from "../errors";
 import { getLocalSystemPrompt } from "../customprompt";
+import parentLogger from "../logger";
+
+
+const logger = parentLogger.child({name: "GAIAdapter"});
 
 export const GAISystemPromptRegex =  /<systemprompt>([\s\S]+)<\/systemprompt>/
 
@@ -29,6 +33,7 @@ export async function generateContent(
 
 export function translateJAItoGAI(body: JAIRequest, includeThoughts?: boolean, thinkingBudget?: number, systemPromptMode?: GAISystemPromptMode | false): GenerateContentParameters {
   if (!body || !body.messages) {
+    logger.warn(JAIError.MISSING_MESSAGES)
     throw new Error(JAIError.MISSING_MESSAGES);
   }
 
@@ -38,7 +43,7 @@ export function translateJAItoGAI(body: JAIRequest, includeThoughts?: boolean, t
   if (systemPromptMode == GAISystemPromptMode.LOCAL) {
     systemPrompt = getLocalSystemPrompt();
     if (!systemPrompt) {
-      console.error("No local system prompt found in systemprompt.md for LOCAL mode.");
+      logger.warn(GAIError.MISSING_LOCAL_SYSTEM_PROMPT);
       throw new Error(GAIError.MISSING_LOCAL_SYSTEM_PROMPT);
     }
   }
@@ -47,12 +52,12 @@ export function translateJAItoGAI(body: JAIRequest, includeThoughts?: boolean, t
     if (msg.content) {
       let content = msg.content;
       if (msg.content.length == 0) {
-          console.warn("GAI request has empty parts, intentional?");
+          logger.warn("GAI request has empty parts, intentional?");
       } 
       if (systemPromptMode == GAISystemPromptMode.CONTEXT && index == 0) {
         systemPrompt = findSystemPromptInMessage(msg.content);
         if (!systemPrompt) {
-          console.error("No system prompt found in first message for CONTEXT mode.");
+          logger.error(GAIError.MISSING_CONTEXT_SYSTEM_PROMPT);
           throw new Error(GAIError.MISSING_CONTEXT_SYSTEM_PROMPT);
         }
         content.replace(systemPrompt, ""); //remove system prompt from message to save tokens
@@ -65,7 +70,8 @@ export function translateJAItoGAI(body: JAIRequest, includeThoughts?: boolean, t
     }
   }
     if (googleAIContents.length == 0) {
-    throw new Error(JAIError.MISSING_CONTENTS);
+      logger.warn(JAIError.MISSING_CONTENTS);
+      throw new Error(JAIError.MISSING_CONTENTS);
   }
 
   let params: GenerateContentParameters = {
@@ -89,13 +95,17 @@ export function translateGAItoJAI(body: GenerateContentResponse) {
   const model = body.modelVersion;
 
   if (body.promptFeedback?.blockReason) {
+    logger.warn(GAIError.BLOCKED_CONTENT)
     throw new Error(GAIError.BLOCKED_CONTENT)
   }
   if (messageContent === undefined && model === undefined) {
+    logger.warn(GAIError.MISSING_FIELDS)
     throw new Error(GAIError.MISSING_FIELDS);
   } else if (messageContent === undefined) {
+    logger.warn(GAIError.MISSING_CONTENTS)
     throw new Error(GAIError.MISSING_CONTENTS);
   } else if (model === undefined) {
+    logger.warn(GAIError.MISSING_MODEL)
     throw new Error(GAIError.MISSING_MODEL);
   }
 

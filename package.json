@@ -4,7 +4,7 @@
   "description": "",
   "main": "main.ts",
   "scripts": {
-    "dev": "set NODE_DEBUG=module && ts-node src/main.ts",
+    "dev": "chcp 65001 && set NODE_DEBUG=module && set PINO_LOG_LEVEL=debug && ts-node src/main.ts | npx pino-pretty --levelFirst",
     "build": "tsoa spec-and-routes && tsc",
     "tsoa:routes": "tsoa routes --config tsoa.json",
     "tsoa:spec": "tsoa spec --config tsoa.json",
@@ -21,6 +21,7 @@
     "axios": "^1.12.2",
     "dotenv": "^17.2.3",
     "express": "^5.1.0",
+    "pino": "^10.1.0",
     "reflect-metadata": "^0.2.2"
   },
   "devDependencies": {

@@ -9,6 +9,8 @@ import {
   ZAI_CODING_PATH,
   ZAIEndpoints as ZAIEndpoint,
 } from "../adapters/zai";
+import parentLogger from "../logger";
+import { JAIRequest } from "../adapters/jai";
 
 const requestClient = axios.create({
   timeout: 180000,
@@ -17,6 +19,8 @@ const requestClient = axios.create({
   maxRedirects: 5,
   decompress: true,
 });
+
+const logger = parentLogger.child({name: "ZAIController"});
 
 @Route("api/zai")
 export class ZAIController extends Controller {
@@ -59,13 +63,15 @@ export class ZAIController extends Controller {
 
   async zaiProxy(body: any, endpoint: ZAIEndpoint, authorization?: string, logReasoning?: boolean) {
     if (!authorization) {
+      logger.warn(RequestError.MISSING_AUTHORIZATION_HEADER);
       this.setStatus(401);
       return { error: RequestError.MISSING_AUTHORIZATION_HEADER };
     }
     try {
+      logger.info("called ZAI proxy");
       //console.debug("Incoming request:");
       //console.debug(body);
-      console.debug("Applying reasoning");
+      logger.debug("Applying reasoning");
       let puffpuffpass = addZAIReasoningToJAI(body);
 
 
@@ -82,7 +88,9 @@ export class ZAIController extends Controller {
           delete puffpuffpass['temperature']; //coding endpoint doesn't support temperature param
         }
         
-      console.log(`Posting to ZAI URL ${ZAI_URL}...`);
+      logger.debug(`Start of transmitted context: ${(body as JAIRequest).messages[2].content.substring(0,250)}...`)
+    
+      logger.debug(`Posting to ZAI URL ${ZAI_URL}...`);
       const response = await requestClient.post(ZAI_URL, puffpuffpass, {
         headers: {
           "Content-Type": "application/json",
@@ -90,20 +98,21 @@ export class ZAIController extends Controller {
         },
       });
       if (!response || !response.data) {
+        logger.warn(ResponseError.MISSING_DATA);
         throw new Error(ResponseError.MISSING_DATA);
       } 
 
       if (logReasoning) {
         const reasoning = getZAIReasoningFromResponse(response);
         if (reasoning) {
-          console.log("Reasoning:");
-          console.log(reasoning);
+          logger.debug({reasoning: reasoning}, "Reasoning received");
         }
       }
+      logger.info("ZAI request completed successfully.");
       this.setStatus(200);
       return response.data;
     } catch (err: any) {
-      console.error(err.message);
+      logger.warn({err: err}, err.message);
       this.setStatus(500);
       return { error: "Something went wrong: " + err.message };
     }

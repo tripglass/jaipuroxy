@@ -17,8 +17,10 @@ import {
 } from "../adapters/oro";
 import { RequestError, ResponseError } from "../errors";
 import axios from "axios";
-import { log } from "console";
+import { JAIRequest } from "../adapters/jai";
+import parentLogger from "../logger";
 
+const logger = parentLogger.child({name: "OROController"});
 
 const requestClient = axios.create({
   timeout: 180000,
@@ -50,22 +52,26 @@ export class OROController extends Controller {
   ): Promise<any> {
     // Validate auth header
     if (!authorization) {
+      logger.warn(RequestError.MISSING_AUTHORIZATION_HEADER);
       this.setStatus(401);
       return { error: RequestError.MISSING_AUTHORIZATION_HEADER };
     }
     try {
+      logger.info("called ORO proxy");
       //console.debug("Incoming request:");
       //console.debug(body);
-      console.debug("Adding reasoning");
+      logger.debug("Adding reasoning");
       const puffpuffpass = addOROReasoningToJAI(body, reasoningEffort, logReasoning);
       if (puffpuffpass && preset) {
-        console.debug("Applying preset: " + preset);
+        logger.debug("Applying preset: " + preset);
         puffpuffpass.preset = preset;
       } else {
-        console.debug("No preset applied.");
+        logger.debug("No preset applied.");
       }
 
-      console.debug("Posting to OAI...");
+      logger.debug(`Start of transmitted context: ${(body as JAIRequest).messages[2].content.substring(0,250)}...`)
+    
+      logger.debug("Posting to OAI...");
       const response = await requestClient.post(ORO_URL, puffpuffpass, {
         headers: {
           "Content-Type": "application/json",
@@ -74,20 +80,21 @@ export class OROController extends Controller {
       });
 
       if (!response || !response.data) {
+        logger.warn(ResponseError.MISSING_DATA);
         throw new Error(ResponseError.MISSING_DATA);
       } 
       
       if (logReasoning) {
         const reasoning = getOROReasoningFromResponse(response);
         if (reasoning) {
-          console.log("Reasoning:");
-          console.log(reasoning);
+          logger.debug({reasoning: reasoning}, "Reasoning received");
         }
       }
+      logger.info("ORO request completed successfully.");
       this.setStatus(200);
       return response.data;
     } catch (err: any) {
-      console.error(err.message);
+      logger.warn({err: err}, err.message);
       this.setStatus(500);
       return { error: "Something went wrong: " + err.message };
     }

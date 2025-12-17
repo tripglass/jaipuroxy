@@ -1,5 +1,6 @@
 import path from "path";
 import {readFile} from "fs/promises"; 
+import parentLogger from "./logger";
 
 let promptText: string | undefined = undefined;
 
@@ -10,10 +11,10 @@ let promptText: string | undefined = undefined;
 export async function initPrompt(): Promise<void> {
   try {
     promptText = await readFile(path.resolve(__dirname, "../systemprompt.md"), "utf8");
-    console.log("Prompt loaded successfully.");
-    console.debug(promptText)
+    parentLogger.info("Prompt loaded successfully.");
+    parentLogger.debug(promptText)
   } catch (err) {
-    console.error("Failed to load systemprompt.md:", err);
+    parentLogger.error({err: err}, "Failed to load systemprompt.md");
     promptText = undefined;
   }
 }

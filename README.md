@@ -18,6 +18,7 @@ Some models offer both reasoning and non-reasoning modes, and some APIs let the 
 This is currently implemented for:
 - OpenRouter.AI
 - Z.AI
+- Gemini by setting `reasoningEffort` to a concrete token amount (only makes sense for the `flash` model since it has both reasoning and non-reasoning modes)
 
 ## Gemini
 
@@ -33,7 +34,7 @@ Reasoning behaviour depends on the used model:
 - `flash-lite` is incapable of reasoning. 
 - `flash` can be made to reason circumstantially via prompt, or forced by allotting a certain amount of reasoning tokens to the request. 
 
-The API of this proxy experimentally offers the option to set the used reasoning tokens to a specific number, which should work for `flash` and `pro`. This should force reasoning in `flash` (although it will likely not reason on the same level as `pro`). While reasoning is always active for `pro`, this can serve to fine-tune reasoning effort and total tokens (i.e. cost).
+The API of this proxy experimentally offers the option to set the used reasoning tokens to a specific number with the parameter `reasoningEffort`, which is supported by `flash` and `pro`. This should force reasoning in `flash` (although it will likely not reason on the same level as `pro`). While reasoning is always active for `pro`, this can serve to fine-tune reasoning effort and total tokens (i.e. cost).
 
 ### Unblock Content Filters
 
@@ -148,7 +149,7 @@ Use `/coding` specific API on Z.AI for request, enable reasoning, log reasoning 
 
 ## Stack
 
-Base technologies are Node & TypeScript. API is built on express & tsoa, proxy calls use axios and the Google GenAI SDK. Testing with vitest.
+Base technologies are Node & TypeScript. API is built on express & tsoa, proxy calls use axios and the Google GenAI SDK. Logging is done with pino, testing with vitest.
 
 ## Run Local
 
@@ -156,13 +157,15 @@ You're gonna need node and npm to run this project locally.
 
 `npm i` to install dependencies, then either:
 
-`npm run dev` (for debug mode)
+`npm run dev` (for debug mode on a Windows machine that's like mine and needs a little kick in the ass for UTF-8-- also with pretty logs)
 
 Or:
 
 `npm run start` (for regular mode)
 
 After changes to the API, you have to regenerate routes with `npm run tsoa:gen`
+
+The environment variable `PINO_LOG_LEVEL` controls the level of logs this application outputs. Log level defaults to `debug` (unless your `NODE_ENV` is mysteriously set to `production`, in which case the level is `info`). Logs with identifiable content (e.g. start of transmitted context window of posts) happen at `debug` level. 
 
 ## Questions
 

@@ -6,18 +6,12 @@ import {
   translateGAItoJAI,
   translateJAItoGAI,
 } from "../adapters/gai";
-import axios from "axios";
 import { RequestError, ResponseError } from "../errors";
-import { sys } from "typescript";
 import { JAIRequest } from "../adapters/jai";
+import parentLogger from "../logger";
 
-const requestClient = axios.create({
-  timeout: 180000,
-  responseEncoding: "utf8",
-  maxContentLength: 50 * 1024 * 1024,
-  maxRedirects: 5,
-  decompress: true,
-});
+
+const logger = parentLogger.child({name: "GAIController"});
 
 @Route("api/gai")
 export class GAIController extends Controller {
@@ -41,26 +35,27 @@ export class GAIController extends Controller {
     @Query() logReasoning?: boolean
   ): Promise<any> {
     if (!authorization) {
+      logger.warn(RequestError.MISSING_AUTHORIZATION_HEADER );
       this.setStatus(401);
       return { error: RequestError.MISSING_AUTHORIZATION_HEADER };
     }
     try {
-      
+      logger.info("called GAI proxy");
       let geminiApiKey = authorization.replace("Bearer ", "");
 
       if (systemPromptMode) {
-        console.debug("Using system prompt mode: " + systemPromptMode);
+        logger.debug("Using system prompt mode: " + systemPromptMode);
       }
 
       if (reasoningEffort !== undefined) {
-        console.debug("Using reasoning effort: " + reasoningEffort);
+        logger.debug("Using reasoning effort: " + reasoningEffort);
       }
 
-     console.debug(`Start of transmitted context: ${(body as JAIRequest).messages[2].content.substring(0,250)}...`)
+     logger.debug(`Start of transmitted context: ${(body as JAIRequest).messages[2].content.substring(0,250)}...`)
      /*         
-//TODO dat body too long, needs pino or something to log to file
-     console.debug(`--- RECEIVED ---`)
-console.debug(`${JSON.stringify(body)}`)
+      //TODO dat body too long, log to file
+      console.debug(`--- RECEIVED ---`)
+      console.debug(`${JSON.stringify(body)}`)
       console.debug(`--- END OF RECEIVED ---`)
       */
       let puffpuffpass = translateJAItoGAI(
@@ -70,28 +65,29 @@ console.debug(`${JSON.stringify(body)}`)
         systemPromptMode
       );
       
-      console.debug("Sending request to GAI");
+      logger.debug("Sending request to GAI");
       let response = await generateContent(geminiApiKey, puffpuffpass);
-      console.debug("Received response from GAI");
+      logger.debug("Received response from GAI");
 
       if (response === undefined ) {
+        logger.warn(ResponseError.MISSING_DATA);
         throw new Error(ResponseError.MISSING_DATA);
       }
 
       if (logReasoning) {
         const reasoning = getThoughtFromResponse(response);
         if (reasoning) {
-          console.log("Reasoning:");
-          console.log(reasoning);
+          logger.info({reasoning: reasoning}, "Reasoning received");
         }
       }
 
-      console.debug("Translating back to JAI");
+      logger.debug("Translating back to JAI");
       let jaiResponse = translateGAItoJAI(response);
+      logger.info("GAI request completed successfully.");
       this.setStatus(200);
       return jaiResponse;
     } catch (err: any) {
-      console.error(err.message);
+      logger.warn({err: err}, err.message);
       this.setStatus(500);
       return { error: "Something went wrong: " + err.message };
     }

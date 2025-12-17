@@ -7,6 +7,16 @@
   
 # IMPORTANT
 
-- [ ] FIX THE GODDAMN LOG LEVELS!!!!! THIS SHIT ISN'T JAVA!
+- [x] FIX THE GODDAMN LOG LEVELS!!!!! THIS SHIT ISN'T JAVA!
 
 # Nice to have
+
+- [x] experimental support for max reasoning tokens in GAI
+- [x] experimental support for reasoning effort in ORO
+- [ ] experimental support for max reasoning tokens/thinking budget in ORO
+- [ ] unify reasoning token + reasoning effort
+- [ ] implement logging large request bodies to file for debugging
+
+# Planned experiments
+
+- [ ] Proton Lumo 

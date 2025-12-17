@@ -1,5 +1,5 @@
 import { Router } from "express";
-import axios from "axios";
+import parentLogger from "./logger";
 
 const router = Router();
 
@@ -13,7 +13,7 @@ let routes = {
 
 Object.values(routes).forEach((r) => {
   router.options(r, (req, res) => {
-    console.debug("Access Control Route");
+    parentLogger.trace("Access Control Route");
     res.header("Access-Control-Allow-Origin", "*");
     res.header("Access-Control-Allow-Methods", "GET, POST, OPTIONS");
     res.header("Access-Control-Allow-Headers", "Content-Type, Authorization");
@@ -32,7 +32,7 @@ router.use((req, res, next) => {
   res.header("Access-Control-Allow-Methods", "GET, POST, OPTIONS");
   res.header("Access-Control-Allow-Headers", "Content-Type, Authorization");
   if (req.method === "OPTIONS") {
-    console.debug("Global preflight (OPTIONS) handled by middleware");
+    parentLogger.trace("Global preflight (OPTIONS) handled by middleware");
     return res.sendStatus(200);
   }
   next();
