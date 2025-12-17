@@ -6,6 +6,7 @@
   "scripts": {
     "dev": "chcp 65001 && set NODE_DEBUG=module && set PINO_LOG_LEVEL=debug && ts-node src/main.ts | npx pino-pretty --levelFirst",
     "build": "tsoa spec-and-routes && tsc",
+    "postbuild": "copyfiles -u 1 src/public/* dist/",
     "tsoa:routes": "tsoa routes --config tsoa.json",
     "tsoa:spec": "tsoa spec --config tsoa.json",
     "tsoa:gen": "npm run tsoa:routes && npm run tsoa:spec",
@@ -31,6 +32,7 @@
     "@types/express": "^5.0.3",
     "@types/node": "^24.10.0",
     "@types/serve-favicon": "^2.5.7",
+    "copyfiles": "^2.4.1",
     "shx": "^0.4.0",
     "ts-node": "^10.9.2",
     "tsoa": "^6.6.0",
