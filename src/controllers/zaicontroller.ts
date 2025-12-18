@@ -105,7 +105,7 @@ export class ZAIController extends Controller {
       if (logReasoning) {
         const reasoning = getZAIReasoningFromResponse(response);
         if (reasoning) {
-          logger.debug({reasoning: reasoning}, "Reasoning received");
+          logger.debug({reasoning: "Reasoning received"}, reasoning);
         }
       }
       logger.info("ZAI request completed successfully.");

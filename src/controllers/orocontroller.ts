@@ -87,7 +87,7 @@ export class OROController extends Controller {
       if (logReasoning) {
         const reasoning = getOROReasoningFromResponse(response);
         if (reasoning) {
-          logger.debug({reasoning: reasoning}, "Reasoning received");
+          logger.debug({reasoning: "Reasoning received"}, reasoning);
         }
       }
       logger.info("ORO request completed successfully.");

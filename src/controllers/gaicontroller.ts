@@ -77,7 +77,7 @@ export class GAIController extends Controller {
       if (logReasoning) {
         const reasoning = getThoughtFromResponse(response);
         if (reasoning) {
-          logger.info({reasoning: reasoning}, "Reasoning received");
+          logger.debug({reasoning: "Reasoning received"}, reasoning);
         }
       }
 
