@@ -77,6 +77,28 @@ Some models on OpenRouter allow for more granular configuration of reasoning. Th
 
 This proxy supports using either the regular Z.AI chat completions endpoint or the special `/coding` API included with a coding subscription. If you keep getting error `429` when using the `/chat` endpoint, you probably want the `/coding` one.
 
+## Utility
+
+Sometimes I get a fantastic response where the overall progression is agreeable-- but the thing is just too goddamn long and needs an opportunity for my own post in the middle. That's why I added a `/snip` endpoint. If you set your proxy to this endpoint, JAIPuR checks the last bot response and user response for a `<SNIP>` tag and "splits" the post, responding with the content following the first `<SNIP>` it could find. (The tag needs look exactly like that.) 
+
+So, for example, if your user post looks like this:
+`"Hello!" I waved.<SNIP> Branco glowered.`
+
+The `/snip` endpoint will give the following response:
+
+`Branco glowered.`
+
+(You will still have to delete the duplicate text in a manual edit, though.)
+
+To use it, set your proxy just for the next response to the `/snip` endpoint. (The values other than Proxy URL don't matter, except it refuses to comply with API key being left empty.)
+
+![Screenshot of a selected Proxy Configuration on Janitor.AI](readme-assets/snipproxy.png)
+
+
+My motivations:
+- I don't necessarily like editing my character's reactions (especially from their perspective) into bot responses because I feel some LLMs "learn" from that and start ignoring my instruction to not write for my character.
+- Sometimes LLM responses generally get too long. Hacking them into pieces gives the LLM reference for shorter post formats which, again, I feel it picks up on.
+
 # Use
 
 JAIPuR has to be running somewhere. Then you can configure your proxy normally: Set the URL and use the endpoint for the provider you need, optionally add query parameters, enter the model name as it used by this provider, and add your API key for this provider. You will have to additionally disable "Text Streaming" in the options.
@@ -144,6 +166,12 @@ Use `/coding` specific API on Z.AI for request, enable reasoning.
 `api/zai/thinky/coding?logReasoning=true`
 
 Use `/coding` specific API on Z.AI for request, enable reasoning, log reasoning results to local console. (This only benefits you if you're running the server locally.)
+
+**Utility:**
+
+`api/aux/snip`
+
+"Snip" a post in two: Both the last bot response and the last user response are checked for whether they contain `<SNIP>` (in this order). The contents of the first response containing `<SNIP>` are split up around `<SNIP>`. The endpoint returns a new bot response with the content coming after `<SNIP>`. (You'll still have to manually edit out the duplicate text, though.)
 
 # About this project
 

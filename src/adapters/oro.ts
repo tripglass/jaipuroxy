@@ -1,3 +1,5 @@
+import { JAIError } from "../errors";
+import parentLogger from "../logger";
 import type { JAIChoice, JAIMessage, JAIRequest, JAIResponse } from "./jai";
 
 export const ORO_URL = "https://openrouter.ai/api/v1/chat/completions";
@@ -53,9 +55,11 @@ export interface OROtoJAIResponse extends JAIResponse {
     }
 }
 
+const logger = parentLogger.child({name: "OROAdapter"});
 export function addOROReasoningToJAI(body: JAIRequest, reasoningEffort?: OROReasoningEffort, logReasoning?: boolean): ORORequest | null {
     if (!body || !body.messages) {
-        return null;
+        logger.warn(JAIError.MISSING_MESSAGES)
+        throw new Error(JAIError.MISSING_MESSAGES);
     }
     let oairequest: ORORequest = body;
     oairequest.reasoning = {

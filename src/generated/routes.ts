@@ -9,6 +9,8 @@ import { ZAIController } from './../controllers/zaicontroller';
 import { OROController } from './../controllers/orocontroller';
 // WARNING: This file was auto-generated with tsoa. Please do not modify it. Re-run tsoa to re-generate this file: https://github.com/lukeautry/tsoa
 import { GAIController } from './../controllers/gaicontroller';
+// WARNING: This file was auto-generated with tsoa. Please do not modify it. Re-run tsoa to re-generate this file: https://github.com/lukeautry/tsoa
+import { AUXController } from './../controllers/auxcontroller';
 import type { Request as ExRequest, Response as ExResponse, RequestHandler, Router } from 'express';
 
 
@@ -164,6 +166,36 @@ export function RegisterRoutes(app: Router) {
 
               await templateService.apiHandler({
                 methodName: 'gaiProxy',
+                controller,
+                response,
+                next,
+                validatedArgs,
+                successStatus: undefined,
+              });
+            } catch (err) {
+                return next(err);
+            }
+        });
+        // WARNING: This file was auto-generated with tsoa. Please do not modify it. Re-run tsoa to re-generate this file: https://github.com/lukeautry/tsoa
+        const argsAUXController_snip: Record<string, TsoaRoute.ParameterSchema> = {
+                body: {"in":"body","name":"body","required":true,"dataType":"any"},
+        };
+        app.post('/api/aux/snip',
+            ...(fetchMiddlewares<RequestHandler>(AUXController)),
+            ...(fetchMiddlewares<RequestHandler>(AUXController.prototype.snip)),
+
+            async function AUXController_snip(request: ExRequest, response: ExResponse, next: any) {
+
+            // WARNING: This file was auto-generated with tsoa. Please do not modify it. Re-run tsoa to re-generate this file: https://github.com/lukeautry/tsoa
+
+            let validatedArgs: any[] = [];
+            try {
+                validatedArgs = templateService.getValidatedArgs({ args: argsAUXController_snip, request, response });
+
+                const controller = new AUXController();
+
+              await templateService.apiHandler({
+                methodName: 'snip',
                 controller,
                 response,
                 next,

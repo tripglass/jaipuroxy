@@ -27,5 +27,7 @@ export enum ResponseError {
 }
 
 export enum JAIPuroxyError {
-    INTERNAL_SERVER_ERROR = "Internal server error"
+    INTERNAL_SERVER_ERROR = "Internal server error",
+    SNIP_TAG_MISSING = "No <SNIP> tag found to split content",
+    AFTER_SNIP_EMPTY = "No content found after <SNIP> tag in the last user message",
 }

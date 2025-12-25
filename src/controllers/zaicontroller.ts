@@ -9,8 +9,7 @@ import {
   ZAI_CODING_PATH,
   ZAIEndpoints as ZAIEndpoint,
 } from "../adapters/zai";
-import parentLogger from "../logger";
-import { JAIRequest } from "../adapters/jai";
+import parentLogger, { logTransmittedContextStart } from "../logger";
 
 const requestClient = axios.create({
   timeout: 180000,
@@ -20,11 +19,10 @@ const requestClient = axios.create({
   decompress: true,
 });
 
-const logger = parentLogger.child({name: "ZAIController"});
+const logger = parentLogger.child({ name: "ZAIController" });
 
 @Route("api/zai")
 export class ZAIController extends Controller {
-  
   /**
    * Uses the Z.AI chat API endpoint for completion, enables reasoning.
    * @param body The JAI request body.
@@ -61,7 +59,12 @@ export class ZAIController extends Controller {
     return this.zaiProxy(body, ZAIEndpoint.CODING, authorization, logReasoning);
   }
 
-  async zaiProxy(body: any, endpoint: ZAIEndpoint, authorization?: string, logReasoning?: boolean) {
+  async zaiProxy(
+    body: any,
+    endpoint: ZAIEndpoint,
+    authorization?: string,
+    logReasoning?: boolean
+  ) {
     if (!authorization) {
       logger.warn(RequestError.MISSING_AUTHORIZATION_HEADER);
       this.setStatus(401);
@@ -74,22 +77,24 @@ export class ZAIController extends Controller {
       logger.debug("Applying reasoning");
       let puffpuffpass = addZAIReasoningToJAI(body);
 
+      if (
+        !endpoint ||
+        (endpoint !== ZAIEndpoint.CHAT && endpoint !== ZAIEndpoint.CODING)
+      ) {
+        throw new Error(ZAIError.MISSING_ENDPOINT);
+      }
 
-      if (!endpoint || (endpoint !== ZAIEndpoint.CHAT && endpoint !== ZAIEndpoint.CODING)) {
-          throw new Error( ZAIError.MISSING_ENDPOINT);
-      } 
+      const ZAI_URL =
+        endpoint === ZAIEndpoint.CODING
+          ? ZAI_BASE_URL + ZAI_CODING_PATH + ZAI_CHAT_COMPLETIONS_ENDPOINT
+          : ZAI_BASE_URL + ZAI_CHAT_COMPLETIONS_ENDPOINT;
 
-      const ZAI_URL = endpoint === ZAIEndpoint.CODING ?
-        ZAI_BASE_URL + ZAI_CODING_PATH + ZAI_CHAT_COMPLETIONS_ENDPOINT:
-        ZAI_BASE_URL + ZAI_CHAT_COMPLETIONS_ENDPOINT;
-      
-        
-        if (puffpuffpass && endpoint === ZAIEndpoint.CODING) {
-          delete puffpuffpass['temperature']; //coding endpoint doesn't support temperature param
-        }
-        
-      logger.debug(`Start of transmitted context: ${(body as JAIRequest).messages[2].content.substring(0,250)}...`)
-    
+      if (puffpuffpass && endpoint === ZAIEndpoint.CODING) {
+        delete puffpuffpass["temperature"]; //coding endpoint doesn't support temperature param
+      }
+
+      logTransmittedContextStart(body, logger);
+
       logger.debug(`Posting to ZAI URL ${ZAI_URL}...`);
       const response = await requestClient.post(ZAI_URL, puffpuffpass, {
         headers: {
@@ -100,22 +105,21 @@ export class ZAIController extends Controller {
       if (!response || !response.data) {
         logger.warn(ResponseError.MISSING_DATA);
         throw new Error(ResponseError.MISSING_DATA);
-      } 
+      }
 
       if (logReasoning) {
         const reasoning = getZAIReasoningFromResponse(response);
         if (reasoning) {
-          logger.debug({reasoning: "Reasoning received"}, reasoning);
+          logger.debug({ reasoning: "Reasoning received" }, reasoning);
         }
       }
       logger.info("ZAI request completed successfully.");
       this.setStatus(200);
       return response.data;
     } catch (err: any) {
-      logger.warn({err: err}, err.message);
+      logger.warn({ err: err }, err.message);
       this.setStatus(500);
       return { error: "Something went wrong: " + err.message };
     }
   }
 }
-

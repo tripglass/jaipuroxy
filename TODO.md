@@ -8,6 +8,7 @@
 # IMPORTANT
 
 - [x] FIX THE GODDAMN LOG LEVELS!!!!! THIS SHIT ISN'T JAVA!
+- [ ] workaround for when the response (fully) ends up in the reasoning
 
 # Nice to have
 

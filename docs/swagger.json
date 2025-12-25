@@ -287,6 +287,38 @@
 					}
 				}
 			}
+		},
+		"/api/aux/snip": {
+			"post": {
+				"operationId": "Snip",
+				"responses": {
+					"200": {
+						"description": "JAI compatible response.",
+						"content": {
+							"application/json": {
+								"schema": {}
+							}
+						}
+					},
+					"500": {
+						"description": "Internal Error"
+					}
+				},
+				"description": "Splits up bot's most recent response at <SNIP> tag and returns the second part as a \"bot\" response again.",
+				"security": [],
+				"parameters": [],
+				"requestBody": {
+					"description": "The JAI request body.",
+					"required": true,
+					"content": {
+						"application/json": {
+							"schema": {
+								"description": "The JAI request body."
+							}
+						}
+					}
+				}
+			}
 		}
 	},
 	"servers": [

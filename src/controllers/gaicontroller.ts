@@ -7,11 +7,9 @@ import {
   translateJAItoGAI,
 } from "../adapters/gai";
 import { RequestError, ResponseError } from "../errors";
-import { JAIRequest } from "../adapters/jai";
-import parentLogger from "../logger";
+import parentLogger, { logTransmittedContextStart } from "../logger";
 
-
-const logger = parentLogger.child({name: "GAIController"});
+const logger = parentLogger.child({ name: "GAIController" });
 
 @Route("api/gai")
 export class GAIController extends Controller {
@@ -35,7 +33,7 @@ export class GAIController extends Controller {
     @Query() logReasoning?: boolean
   ): Promise<any> {
     if (!authorization) {
-      logger.warn(RequestError.MISSING_AUTHORIZATION_HEADER );
+      logger.warn(RequestError.MISSING_AUTHORIZATION_HEADER);
       this.setStatus(401);
       return { error: RequestError.MISSING_AUTHORIZATION_HEADER };
     }
@@ -51,8 +49,8 @@ export class GAIController extends Controller {
         logger.debug("Using reasoning effort: " + reasoningEffort);
       }
 
-     logger.debug(`Start of transmitted context: ${(body as JAIRequest).messages[2].content.substring(0,250)}...`)
-     /*         
+      logTransmittedContextStart(body, logger);
+      /*         
       //TODO dat body too long, log to file
       console.debug(`--- RECEIVED ---`)
       console.debug(`${JSON.stringify(body)}`)
@@ -64,12 +62,12 @@ export class GAIController extends Controller {
         reasoningEffort,
         systemPromptMode
       );
-      
+
       logger.debug("Sending request to GAI");
       let response = await generateContent(geminiApiKey, puffpuffpass);
       logger.debug("Received response from GAI");
 
-      if (response === undefined ) {
+      if (response === undefined) {
         logger.warn(ResponseError.MISSING_DATA);
         throw new Error(ResponseError.MISSING_DATA);
       }
@@ -77,7 +75,7 @@ export class GAIController extends Controller {
       if (logReasoning) {
         const reasoning = getThoughtFromResponse(response);
         if (reasoning) {
-          logger.debug({reasoning: "Reasoning received"}, reasoning);
+          logger.debug({ reasoning: "Reasoning received" }, reasoning);
         }
       }
 
@@ -87,7 +85,7 @@ export class GAIController extends Controller {
       this.setStatus(200);
       return jaiResponse;
     } catch (err: any) {
-      logger.warn({err: err}, err.message);
+      logger.warn({ err: err }, err.message);
       this.setStatus(500);
       return { error: "Something went wrong: " + err.message };
     }

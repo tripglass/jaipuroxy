@@ -6,20 +6,11 @@ const router = Router();
 let routes = {
   root: "/",
   oai_reasoning: "/oai/thinky",
-  zai_reasoning: "/zai/thinky",
-  googleaistudio: "/gai/proxy"
+  zai_reasoning_chat: "/zai/thinky/chat",
+  zai_reasoning_coding: "/zai/thinky/coding",
+  googleaistudio: "/gai/proxy",
+  util: "/aux/snip"
 };
-
-
-Object.values(routes).forEach((r) => {
-  router.options(r, (req, res) => {
-    parentLogger.trace("Access Control Route");
-    res.header("Access-Control-Allow-Origin", "*");
-    res.header("Access-Control-Allow-Methods", "GET, POST, OPTIONS");
-    res.header("Access-Control-Allow-Headers", "Content-Type, Authorization");
-    res.sendStatus(200);
-  });
-});
 
 router.get(routes.root, (req, res) => {
   res.send("Hello from the API!");
