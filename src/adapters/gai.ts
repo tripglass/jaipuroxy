@@ -1,4 +1,5 @@
 import {
+  ContentUnion,
   FinishReason,
   GenerateContentParameters,
   GenerateContentResponse,
@@ -79,7 +80,7 @@ export function translateJAItoGAI(body: JAIRequest, includeThoughts?: boolean, t
     contents: googleAIContents,
     config: {
       safetySettings: getBlockNoneSafetySettings(),
-      systemInstruction: systemPrompt,
+      systemInstruction: systemPrompt ? giveSystemPromptRole(systemPrompt) : undefined,
       thinkingConfig: {
         includeThoughts: includeThoughts,
         thinkingBudget: thinkingBudget || undefined,
@@ -95,7 +96,7 @@ export function translateGAItoJAI(body: GenerateContentResponse) {
   const model = body.modelVersion;
 
   if (body.promptFeedback?.blockReason) {
-    logger.warn(GAIError.BLOCKED_CONTENT)
+    logger.warn({err: body.promptFeedback}, GAIError.BLOCKED_CONTENT, );
     throw new Error(GAIError.BLOCKED_CONTENT)
   }
   if (messageContent === undefined && model === undefined) {
@@ -188,4 +189,8 @@ export function findSystemPromptInMessage(message: string): string | undefined {
         return match[1].trim();
     }
     return undefined;
+}
+
+function giveSystemPromptRole(prompt: string): ContentUnion {
+    return { role: "system", parts: [{text: prompt}] };
 }

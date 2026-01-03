@@ -44,7 +44,7 @@ This proxy sets Gemini's content filters to the most permissive setting so we ca
 
 This proxy additionally supports setting a **system prompt**, which will make Gemini adhere more strictly to your instructions. 
 
-Heuristic checks are stricter for Gemini's `systemInstruction` parameter than message contents and appear independent from safety settings. If you keep getting a `PROHIBITED_CONTENT` response, chances are that the checks detected something in your instructions that they identify as designed to break Gemini's ToS. In that case, try to rephrase your instructions.
+Heuristic checks are stricter for Gemini's `systemInstruction` parameter than message contents and appear independent from safety settings. If you keep getting a `PROHIBITED_CONTENT` response independent of chat content, chances are that the checks detected something in your instructions that they identify as designed to break Gemini's ToS. In that case, try to rephrase your instructions. (Funnily enough, Gemini can help you with this if you describe your problem and paste your instructions in the app.)
 
 There are two options for passing along a system prompt:
 
@@ -68,6 +68,8 @@ This proxy supports using **OpenRouter presets**. You can set those up your Open
 
 ![Screenshot of OpenRouter "Presets" view with red arrows pointing out the menu point "Presets", the field where the system prompt goes, and the input field that lets the user copy the preset identifier.](readme-assets/oropresets.png)
 
+Not all OpenRouter models seem to support this (I think it's about the system prompt but I could be wrong), so if you keep getting a request format error, try disabling the preset and inserting your prompt into JAI's *Custom Prompt* field.
+
 ### Reasoning effort
 
 Some models on OpenRouter allow for more granular configuration of reasoning. This proxy experimentally lets you pass along a reasoning effort level to the model: Options are `minimal`, `low`, `medium`, `high` and `xhigh`. If the model only supports setting a discrete number of reasoning tokens, this number will apparently be calculated based on this option? Feel free to peruse the [OpenRouter docs on reasoning](https://openrouter.ai/docs/guides/best-practices/reasoning-tokens#reasoning-effort-level) for more information.
@@ -90,18 +92,20 @@ The `/snip` endpoint will give the following response:
 
 (You will still have to delete the duplicate text in a manual edit, though.)
 
-To use it, set your proxy just for the next response to the `/snip` endpoint. (The values other than Proxy URL don't matter, except it refuses to comply with API key being left empty.)
+To use it, set your proxy just for the next response to the `/snip` endpoint. (The values other than *Proxy URL* don't matter, except it refuses to comply with API key being left empty.)
 
 ![Screenshot of a selected Proxy Configuration on Janitor.AI](readme-assets/snipproxy.png)
 
 
 My motivations:
-- I don't necessarily like editing my character's reactions (especially from their perspective) into bot responses because I feel some LLMs "learn" from that and start ignoring my instruction to not write for my character.
+- I don't necessarily like editing bot responses to add my character's reactions (especially from their perspective) because I feel some LLMs "learn" from that and start ignoring my instruction to not write for my character.
 - Sometimes LLM responses generally get too long. Hacking them into pieces gives the LLM reference for shorter post formats which, again, I feel it picks up on.
 
 # Use
 
-JAIPuR has to be running somewhere. Then you can configure your proxy normally: Set the URL and use the endpoint for the provider you need, optionally add query parameters, enter the model name as it used by this provider, and add your API key for this provider. You will have to additionally disable "Text Streaming" in the options.
+JAIPuR has to be running somewhere. See [Run Locally](#run-local) on instructions on how to start it on your machine. 
+
+Once it is running, you can configure your proxy normally: Set the URL and use the endpoint for the provider you need, optionally add query parameters, enter the model name as it used by this provider, and add your API key for this provider. You will have to additionally disable "Text Streaming" in the options because JAIPuR does not support this.
 
 ![Screenshot of "Edit Proxy Configuration" form on Janitor.AI](readme-assets/jaiproxyconf.png)
 
@@ -121,7 +125,11 @@ Use Google AI/Gemini API. System prompt will be set from whatever is between `<s
 
 `/api/gai/proxy?reasoningEffort=1024`
 
-Use Google AI/Gemini API. EXPERIMENTAL: Sets a predetermined number of tokens the model may use for reasoning, if you are using a model that is capable of reasoning. Setting this to a positive integer can force gemini-2.5-flash into reasoning mode. For flash: 0 to 24576, for pro: 128 to 32768. -1 lets the model decide (but in that case you can also leave out the parameter).
+Use Google AI/Gemini API. Sets a predetermined number of tokens the model may use for reasoning, if you are using a model that is capable of reasoning. Setting this to a positive integer forces Gemini `flash` models to reason, improving response quality. Remember that this does not work for `flash-lite` models, since those do not support reasoning.
+
+Range for `flash`: 0 to 24576 
+Range for `pro`: 128 to 32768
+-1 lets the model decide (but in that case you can also leave out the parameter).
 
 `/api/gai/proxy?logReasoning=true` 
 
@@ -139,7 +147,7 @@ Use OpenRouter API, enable reasoning. Make sure you're using a model that suppor
 
 `/api/oro/thinky?reasoningEffort=high`
 
-Use OpenRouter API, enable reasoning. EXPERIMENTAL: Sets reasoning effort to high for models that support it. Available values:  "minimal", "low", "medium", "high", "xhigh"
+Use OpenRouter API, enable reasoning. Sets reasoning effort to high for models that support it. Available values:  "minimal", "low", "medium", "high", "xhigh"
 
 `/api/oro/thinky?preset=@preset/tripglass-wurstsalat`
 
@@ -179,13 +187,13 @@ Use `/coding` specific API on Z.AI for request, enable reasoning, log reasoning 
 
 Base technologies are Node & TypeScript. API is built on express & tsoa, proxy calls use axios and the Google GenAI SDK. Logging is done with pino, testing with vitest.
 
-## Run Local
+## Run Local {#run-local}
 
-You're gonna need node and npm to run this project locally.
+You're gonna need `Node.js` and `npm` on your system to run this project locally.
 
 `npm i` to install dependencies, then either:
 
-`npm run dev` (for debug mode on a Windows machine that's like mine and needs a little kick in the ass for UTF-8-- also with pretty logs)
+`npm run dev` (for debug mode on a Windows machine that's like mine and needs a little kick in the ass for UTF-8, comes with pretty logs)
 
 Or:
 
@@ -222,7 +230,7 @@ Dunno? Compare the features and the code (if the full source is publically avail
 
 ### What happens with my API keys?
 
-The code itself doesn't log them. The rest depends on where the code is run. If you run it locally, you have it under control. If you deploy the code somewhere, it depends on where it's running, no?
+The code itself doesn't log or store them, just passes them through. The rest depends on where the code is run. If you want maximum peace of mind, just run JAIPuR locally.
 
 ### Why "JAIPuR"?
 
