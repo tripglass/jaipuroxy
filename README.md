@@ -103,7 +103,7 @@ My motivations:
 
 # Use
 
-JAIPuR has to be running somewhere. See [Run Locally](#run-local) on instructions on how to start it on your machine. 
+JAIPuR has to be running somewhere. See [Run Locally](#Run-Local) on instructions on how to start it on your machine. 
 
 Once it is running, you can configure your proxy normally: Set the URL and use the endpoint for the provider you need, optionally add query parameters, enter the model name as it used by this provider, and add your API key for this provider. You will have to additionally disable "Text Streaming" in the options because JAIPuR does not support this.
 
@@ -187,7 +187,7 @@ Use `/coding` specific API on Z.AI for request, enable reasoning, log reasoning 
 
 Base technologies are Node & TypeScript. API is built on express & tsoa, proxy calls use axios and the Google GenAI SDK. Logging is done with pino, testing with vitest.
 
-## Run Local {#run-local}
+## Run Local
 
 You're gonna need `Node.js` and `npm` on your system to run this project locally.
 
