@@ -111,9 +111,9 @@ My motivations:
 For debugging purposes, like when scripting or messing around with system prompts, I sometimes want to see the entire context transmitted to the LLM, or the raw response returned. These are inconvenient/too fucking huge to dump into the terminal, so I'm logging them to a file. 
 
 Here are the relevant **environment variables:**
-`LOG_PATH` - the path to the log file. If it doesn't exist, it will be created. Defaults to `./logs/server.log`
-`LOG_CONTEXT_TO_FILE` - if set to `true`, logs every transmitted context in full to the LLM API to the log file. Defaults to `false`.
-`LOG_RAW_RESPONSE_TO_FILE` - if set to `true`, logs every raw response received from the LLM API to the log file. Defaults to `false`. 
+- `LOG_PATH` - the path to the log file. If it doesn't exist, it will be created. Defaults to `./logs/server.log`
+- `LOG_CONTEXT_TO_FILE` - if set to `true`, logs every transmitted context in full to the LLM API to the log file. Defaults to `false`.
+- `LOG_RAW_RESPONSE_TO_FILE` - if set to `true`, logs every raw response received from the LLM API to the log file. Defaults to `false`. 
 
 There is also a dedicated auxiliary `/log` endpoint which doesn't actually transmit to an LLM; it only logs the full current context as it would be transmitted to the file.
 
@@ -126,10 +126,10 @@ It uses [dotenv](https://www.npmjs.com/package/dotenv) so I have an `.env.local`
 ![Screenshot of a Janitor.AI localhost proxy configuration with a single character in the API Key field.](readme-assets/localapikey.png)
 
 Here are the relevant **environment variables:**
-`ORO_API_KEY` - OpenRouter
-`ZAI_API_KEY` - Z.AI
-`GAI_API_KEY_PAID` - Gemini, used for `pro` models
-`GAI_API_KEY_FREE` - Gemini, used for other models (e.g. `flash`, `flash-lite`)
+- `ORO_API_KEY` - OpenRouter
+- `ZAI_API_KEY` - Z.AI
+- `GAI_API_KEY_PAID` - Gemini, used for `pro` models
+- `GAI_API_KEY_FREE` - Gemini, used for other models (e.g. `flash`, `flash-lite`)
 
 The GAI keys are distinct is because an account on the free tier still offers a couple requests to e.g. `flash` while there are no free requests to `pro` models at the time of writing. But you can obviously use the same key for PAID and FREE.
 
@@ -245,14 +245,14 @@ After changes to the API, you have to regenerate routes with `npm run tsoa:gen`
 
 JAIPUR supports dotenv, so you can use `.env` files to configure the following variables:
 
-`PINO_LOG_LEVEL` - controls the level of logs this application outputs. Log level defaults to `debug` (unless your `NODE_ENV` is mysteriously set to `production`, in which case the level is `info`). Logs with identifiable content (e.g. start of transmitted context window of posts) happen at `debug` level. 
-`LOG_PATH` - the path to the log file. Only specific, huge things are logged to the file: Full contexts (if enabled or using the `/log` endpoint) and raw responses (if enabled). If it doesn't exist, it will be created. Defaults to `./logs/server.log`
-`LOG_CONTEXT_TO_FILE` - if set to `true`, logs every transmitted context in full to the LLM API to the log file. Defaults to `false`.
-`LOG_RAW_RESPONSE_TO_FILE` - if set to `true`, logs every raw response received from the LLM API to the log file. Defaults to `false`. 
-`ORO_API_KEY` - OpenRouter API key
-`ZAI_API_KEY` - Z.AI API key
-`GAI_API_KEY_PAID` - Gemini API key, used for `pro` models
-`GAI_API_KEY_FREE` - Gemini API key, used for other models (e.g. `flash`, `flash-lite`)
+- `PINO_LOG_LEVEL` - controls the level of logs this application outputs. Log level defaults to `debug` (unless your `NODE_ENV` is mysteriously set to `production`, in which case the level is `info`). Logs with identifiable content (e.g. start of transmitted context window of posts) happen at `debug` level. 
+- `LOG_PATH` - the path to the log file. Only specific, huge things are logged to the file: Full contexts (if enabled or using the `/log` endpoint) and raw responses (if enabled). If it doesn't exist, it will be created. Defaults to `./logs/server.log`
+- `LOG_CONTEXT_TO_FILE` - if set to `true`, logs every transmitted context in full to the LLM API to the log file. Defaults to `false`.
+- `LOG_RAW_RESPONSE_TO_FILE` - if set to `true`, logs every raw response received from the LLM API to the log file. Defaults to `false`. 
+- `ORO_API_KEY` - OpenRouter API key
+- `ZAI_API_KEY` - Z.AI API key
+- `GAI_API_KEY_PAID` - Gemini API key, used for `pro` models
+- `GAI_API_KEY_FREE` - Gemini API key, used for other models (e.g. `flash`, `flash-lite`)
 
 ## Questions
 
