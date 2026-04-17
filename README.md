@@ -1,8 +1,11 @@
 # JAIPuR OXY
 
-Proxy for interfacing JanitorAI with a bunch of other LLM APIs **primarily** to:
-- enable reasoning, e.g. with models that can do both
+Proxy for interfacing with JanitorAI. **Functions:**
+- enable reasoning, e.g. with models that can do both, or set reasoning tokens
 - make JanitorAI communicate with Gemini
+- split posts
+- inject API keys from local environment
+- log transmitted contexts 
 
 This proxy works for:
 - OpenRouter
@@ -28,11 +31,12 @@ Gemini has a different API than e.g. OpenRouter. JAI does not support Gemini's r
 
 ### Reasoning 
 
-Reasoning behaviour depends on the used model: 
+Reasoning behaviour depends on the used model and version: 
 
 - `pro` always reasons, so it does not have to be enabled. 
 - `flash-lite` is incapable of reasoning. 
-- `flash` can be made to reason circumstantially via prompt, or forced by allotting a certain amount of reasoning tokens to the request. 
+- `2.5-flash` can be made to reason circumstantially via prompt, or forced by allotting a certain amount of reasoning tokens to the request.
+- `3-flash` seems to be more inclined to reason. The Gemini website claims that it delivers results on level with `2.5-pro`.
 
 The API of this proxy experimentally offers the option to set the used reasoning tokens to a specific number with the parameter `reasoningEffort`, which is supported by `flash` and `pro`. This should force reasoning in `flash` (although it will likely not reason on the same level as `pro`). While reasoning is always active for `pro`, this can serve to fine-tune reasoning effort and total tokens (i.e. cost).
 
@@ -81,6 +85,8 @@ This proxy supports using either the regular Z.AI chat completions endpoint or t
 
 ## Utility
 
+### SNIP
+
 Sometimes I get a fantastic response where the overall progression is agreeable-- but the thing is just too goddamn long and needs an opportunity for my own post in the middle. That's why I added a `/snip` endpoint. If you set your proxy to this endpoint, JAIPuR checks the last bot response and user response for a `<SNIP>` tag and "splits" the post, responding with the content following the first `<SNIP>` it could find. (The tag needs look exactly like that.) 
 
 So, for example, if your user post looks like this:
@@ -94,12 +100,38 @@ The `/snip` endpoint will give the following response:
 
 To use it, set your proxy just for the next response to the `/snip` endpoint. (The values other than *Proxy URL* don't matter, except it refuses to comply with API key being left empty.)
 
-![Screenshot of a selected Proxy Configuration on Janitor.AI](readme-assets/snipproxy.png)
-
+![Screenshot of the SNIP Proxy Configuration on Janitor.AI](readme-assets/snipproxy.png)
 
 My motivations:
 - I don't necessarily like editing bot responses to add my character's reactions (especially from their perspective) because I feel some LLMs "learn" from that and start ignoring my instruction to not write for my character.
 - Sometimes LLM responses generally get too long. Hacking them into pieces gives the LLM reference for shorter post formats which, again, I feel it picks up on.
+
+### LOG
+
+For debugging purposes, like when scripting or messing around with system prompts, I sometimes want to see the entire context transmitted to the LLM, or the raw response returned. These are inconvenient/too fucking huge to dump into the terminal, so I'm logging them to a file. 
+
+Here are the relevant **environment variables:**
+`LOG_PATH` - the path to the log file. If it doesn't exist, it will be created. Defaults to `./logs/server.log`
+`LOG_CONTEXT_TO_FILE` - if set to `true`, logs every transmitted context in full to the LLM API to the log file. Defaults to `false`.
+`LOG_RAW_RESPONSE_TO_FILE` - if set to `true`, logs every raw response received from the LLM API to the log file. Defaults to `false`. 
+
+There is also a dedicated auxiliary `/log` endpoint which doesn't actually transmit to an LLM; it only logs the full current context as it would be transmitted to the file.
+
+### Local API keys
+
+JAIPuR can inject API keys from your local environment into your requests so they stay confined to your computer and JAI never saves or even sees them. This is *intended* for when you run JAIPuR as a **local proxy**, not for deploying it somewhere (because anyone with the URL to your public deployment could use your API keys without even knowing them). I'm not your boss but know what you're doing.
+
+It uses [dotenv](https://www.npmjs.com/package/dotenv) so I have an `.env.local` file in the project root on my computer where I just list out the keys. For JAIPuR to use them in requests, replace the contents of the API Key field for the proxy with " " and JAIPuR will resolve the matching API key from your environment. (This workaround is necessary because the JAI UI refuses to let you send requests without a filled-in API key.)
+
+![Screenshot of a Janitor.AI localhost proxy configuration with a single character in the API Key field.](readme-assets/localapikey.png)
+
+Here are the relevant **environment variables:**
+`ORO_API_KEY` - OpenRouter
+`ZAI_API_KEY` - Z.AI
+`GAI_API_KEY_PAID` - Gemini, used for `pro` models
+`GAI_API_KEY_FREE` - Gemini, used for other models (e.g. `flash`, `flash-lite`)
+
+The GAI keys are distinct is because an account on the free tier still offers a couple requests to e.g. `flash` while there are no free requests to `pro` models at the time of writing. But you can obviously use the same key for PAID and FREE.
 
 # Use
 
@@ -181,11 +213,15 @@ Use `/coding` specific API on Z.AI for request, enable reasoning, log reasoning 
 
 "Snip" a post in two: Both the last bot response and the last user response are checked for whether they contain `<SNIP>` (in this order). The contents of the first response containing `<SNIP>` are split up around `<SNIP>`. The endpoint returns a new bot response with the content coming after `<SNIP>`. (You'll still have to manually edit out the duplicate text, though.)
 
+`api/aux/log`
+
+Logs the full transmitted context to a file. That's all it does. Ignores the environment logging flags because I'm assuming that if you call this endpoint, you want the context logged.
+
 # About this project
 
 ## Stack
 
-Base technologies are Node & TypeScript. API is built on express & tsoa, proxy calls use axios and the Google GenAI SDK. Logging is done with pino, testing with vitest.
+Base technologies are Node & TypeScript. API is built on express & tsoa, proxy calls use axios and the Google GenAI SDK. Logging is done with pino, testing with vitest. 
 
 ## Run Local
 
@@ -193,7 +229,11 @@ You're gonna need `Node.js` and `npm` on your system to run this project locally
 
 `npm i` to install dependencies, then either:
 
-`npm run dev` (for debug mode on a Windows machine that's like mine and needs a little kick in the ass for UTF-8, comes with pretty logs)
+`npm run dev` (for debug mode, configured for a Windows machine that's like mine and needs a little kick in the ass for UTF-8, comes with pretty logs)
+
+Or
+
+`npm run dev-log-all` (same as above but logs all outgoing contexts and incoming raw responses to a file)
 
 Or:
 
@@ -201,7 +241,18 @@ Or:
 
 After changes to the API, you have to regenerate routes with `npm run tsoa:gen`
 
-The environment variable `PINO_LOG_LEVEL` controls the level of logs this application outputs. Log level defaults to `debug` (unless your `NODE_ENV` is mysteriously set to `production`, in which case the level is `info`). Logs with identifiable content (e.g. start of transmitted context window of posts) happen at `debug` level. 
+## Environment Variables
+
+JAIPUR supports dotenv, so you can use `.env` files to configure the following variables:
+
+`PINO_LOG_LEVEL` - controls the level of logs this application outputs. Log level defaults to `debug` (unless your `NODE_ENV` is mysteriously set to `production`, in which case the level is `info`). Logs with identifiable content (e.g. start of transmitted context window of posts) happen at `debug` level. 
+`LOG_PATH` - the path to the log file. Only specific, huge things are logged to the file: Full contexts (if enabled or using the `/log` endpoint) and raw responses (if enabled). If it doesn't exist, it will be created. Defaults to `./logs/server.log`
+`LOG_CONTEXT_TO_FILE` - if set to `true`, logs every transmitted context in full to the LLM API to the log file. Defaults to `false`.
+`LOG_RAW_RESPONSE_TO_FILE` - if set to `true`, logs every raw response received from the LLM API to the log file. Defaults to `false`. 
+`ORO_API_KEY` - OpenRouter API key
+`ZAI_API_KEY` - Z.AI API key
+`GAI_API_KEY_PAID` - Gemini API key, used for `pro` models
+`GAI_API_KEY_FREE` - Gemini API key, used for other models (e.g. `flash`, `flash-lite`)
 
 ## Questions
 

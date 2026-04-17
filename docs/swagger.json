@@ -193,7 +193,7 @@
 						}
 					},
 					{
-						"description": "Mandatory. Needs to be 'Bearer <OpenRouter_API_KEY>', automatically set by JAI if you put in your OpenRouter API key in the proxy config.",
+						"description": "Needs to be 'Bearer <OpenRouter_API_KEY>', automatically set by JAI if you put in your OpenRouter API key in the proxy config.  If empty/blank, attempts to use .env variables for ORO_API_KEY.",
 						"in": "header",
 						"name": "authorization",
 						"required": false,
@@ -238,7 +238,7 @@
 				"security": [],
 				"parameters": [
 					{
-						"description": "Mandatory. Needs to be 'Bearer <GoogleAI_API_KEY>', automatically set by JAI if you put in your Google AI Studio API key in the proxy config.",
+						"description": "Needs to be 'Bearer <GoogleAI_API_KEY>', automatically set by JAI if you put in your Google AI Studio API key in the proxy config. If empty/blank, attempts to use .env variables for GAI_API_KEY_PAID (pro models) and GAI_API_KEY_FREE (other models).",
 						"in": "header",
 						"name": "authorization",
 						"required": false,
@@ -305,6 +305,41 @@
 					}
 				},
 				"description": "Splits up bot's most recent response at <SNIP> tag and returns the second part as a \"bot\" response again.",
+				"security": [],
+				"parameters": [],
+				"requestBody": {
+					"description": "The JAI request body.",
+					"required": true,
+					"content": {
+						"application/json": {
+							"schema": {
+								"description": "The JAI request body."
+							}
+						}
+					}
+				}
+			}
+		},
+		"/api/aux/log": {
+			"post": {
+				"operationId": "Log",
+				"responses": {
+					"200": {
+						"description": "JAI compatible response.",
+						"content": {
+							"application/json": {
+								"schema": {}
+							}
+						}
+					},
+					"418": {
+						"description": "Context Logged"
+					},
+					"500": {
+						"description": "Internal Error"
+					}
+				},
+				"description": "Logs the full context currently sent to the LLM.",
 				"security": [],
 				"parameters": [],
 				"requestBody": {

@@ -4,4 +4,6 @@ node_modules
 /refs
 /dist
 
+.env
 .env.*
+logs/server.log

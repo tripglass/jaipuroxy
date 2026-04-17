@@ -59,3 +59,27 @@ export function snipToBotResponse(body: JAIRequest): JAIResponse | null {
   };
   return responsePayload;
 }
+
+/**
+ * returns undefined if authorization header is:
+ * - falsy (e.g. undefined)
+ * - empty string
+ * - "Bearer" with only whitespace after
+ * 
+ * returns unmodified authorization header otherwise. **NOTE:** This method doesn't actually check whether the API key 
+ * itself looks reasonable.
+ * 
+ * Method purpose:
+ * 
+ * JAI mandates the API key field be filled to send a request. This function flattens an authorization header where " " 
+ * has been entered as API key in JAI into undefined to trigger using API keys from .env file.
+ * 
+ * @param authorization authorization header
+ * @returns "valid looking" authorization header or undefined
+ */
+export function unsetInvalidAuthorizationHeader(authorization?: string): string | undefined {
+    if (!authorization || authorization.trim() === "" || authorization.trim() === "Bearer") {
+        return undefined;
+    }
+    return authorization;
+}

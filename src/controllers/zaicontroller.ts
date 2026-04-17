@@ -9,7 +9,9 @@ import {
   ZAI_CODING_PATH,
   ZAIEndpoints as ZAIEndpoint,
 } from "../adapters/zai";
-import parentLogger, { logTransmittedContextStart } from "../logger";
+import parentLogger, { logTransmittedContextStart, conditionallyLogRawResponseToFile } from "../logger";
+import { unsetInvalidAuthorizationHeader } from "../adapters/util";
+import { getEnvZaiApiAuthorization } from "../dotenv";
 
 const requestClient = axios.create({
   timeout: 180000,
@@ -65,15 +67,18 @@ export class ZAIController extends Controller {
     authorization?: string,
     logReasoning?: boolean
   ) {
+    authorization = unsetInvalidAuthorizationHeader(authorization);
     if (!authorization) {
-      logger.warn(RequestError.MISSING_AUTHORIZATION_HEADER);
-      this.setStatus(401);
-      return { error: RequestError.MISSING_AUTHORIZATION_HEADER };
+      authorization = getEnvZaiApiAuthorization();
+      if (!authorization) {
+        logger.warn(RequestError.MISSING_AUTHORIZATION_HEADER);
+        this.setStatus(401);
+        return { error: RequestError.MISSING_AUTHORIZATION_HEADER };
+      }
+      logger.info("Using .env's Z.AI API key");
     }
     try {
       logger.info("called ZAI proxy");
-      //console.debug("Incoming request:");
-      //console.debug(body);
       logger.debug("Applying reasoning");
       let puffpuffpass = addZAIReasoningToJAI(body);
 
@@ -113,6 +118,7 @@ export class ZAIController extends Controller {
           logger.debug({ reasoning: "Reasoning received" }, reasoning);
         }
       }
+      conditionallyLogRawResponseToFile(response);
       logger.info("ZAI request completed successfully.");
       this.setStatus(200);
       return response.data;

@@ -1,12 +1,4 @@
-import {
-  Controller,
-  Post,
-  Route,
-  Body,
-  Query,
-  Header,
-  Response,
-} from "tsoa";
+import { Controller, Post, Route, Body, Query, Header, Response } from "tsoa";
 import {
   addOROReasoningToJAI,
   getOROReasoningFromResponse,
@@ -15,7 +7,9 @@ import {
 } from "../adapters/oro";
 import { RequestError, ResponseError } from "../errors";
 import axios from "axios";
-import parentLogger, { logTransmittedContextStart } from "../logger";
+import parentLogger, { logTransmittedContextStart, conditionallyLogRawResponseToFile } from "../logger";
+import { getEnvOroApiAuthorization } from "../dotenv";
+import { unsetInvalidAuthorizationHeader } from "../adapters/util";
 
 const logger = parentLogger.child({ name: "OROController" });
 
@@ -32,7 +26,7 @@ export class OROController extends Controller {
   /**
    * Uses OpenRouter endpoint for completion, enables reasoning.
    * @param body The JAI request body.
-   * @param authorization Mandatory. Needs to be 'Bearer <OpenRouter_API_KEY>', automatically set by JAI if you put in your OpenRouter API key in the proxy config.
+   * @param authorization Needs to be 'Bearer <OpenRouter_API_KEY>', automatically set by JAI if you put in your OpenRouter API key in the proxy config.  If empty/blank, attempts to use .env variables for ORO_API_KEY.
    * @param preset Optional. Enables use of a preset configured in your OpenRouter account, e.g. to set the system prompt or customise providers. Example: @preset/sausagewithbuns
    * @param logReasoning  Optional. For running locally: If available, reasoning will be logged to console.
    * @returns JAI compatible response from OpenRouter.
@@ -45,13 +39,17 @@ export class OROController extends Controller {
     @Query() preset?: string,
     @Query() reasoningEffort?: OROReasoningEffort,
     @Query() logReasoning?: boolean,
-    @Header("authorization") authorization?: string
+    @Header("authorization") authorization?: string,
   ): Promise<any> {
-    // Validate auth header
+    authorization = unsetInvalidAuthorizationHeader(authorization);
     if (!authorization) {
-      logger.warn(RequestError.MISSING_AUTHORIZATION_HEADER);
-      this.setStatus(401);
-      return { error: RequestError.MISSING_AUTHORIZATION_HEADER };
+      authorization = getEnvOroApiAuthorization();
+      if (!authorization) {
+        logger.warn(RequestError.MISSING_AUTHORIZATION_HEADER);
+        this.setStatus(401);
+        return { error: RequestError.MISSING_AUTHORIZATION_HEADER };
+      }
+      logger.info("Using .env's ORO API key");
     }
     try {
       logger.info("called ORO proxy");
@@ -61,7 +59,7 @@ export class OROController extends Controller {
       const puffpuffpass = addOROReasoningToJAI(
         body,
         reasoningEffort,
-        logReasoning
+        logReasoning,
       );
       if (puffpuffpass && preset) {
         logger.debug("Applying preset: " + preset);
@@ -91,6 +89,7 @@ export class OROController extends Controller {
           logger.debug({ reasoning: "Reasoning received" }, reasoning);
         }
       }
+      conditionallyLogRawResponseToFile(response);
       logger.info("ORO request completed successfully.");
       this.setStatus(200);
       return response.data;

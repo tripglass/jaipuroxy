@@ -30,4 +30,6 @@ export enum JAIPuroxyError {
     INTERNAL_SERVER_ERROR = "Internal server error",
     SNIP_TAG_MISSING = "No <SNIP> tag found to split content",
     AFTER_SNIP_EMPTY = "No content found after <SNIP> tag in the last user message",
+    MISSING_API_KEY = "Could not resolve API key for request",
+    LOG_CONTEXT_TO_FILE_DISABLED = "Context logging to file is disabled",
 }

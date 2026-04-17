@@ -11,7 +11,7 @@ import {
 import { JAIRequest, JAIResponse } from "./jai";
 import { GAIError, JAIError } from "../errors";
 import { getLocalSystemPrompt } from "../customprompt";
-import parentLogger from "../logger";
+import parentLogger, { conditionallyLogRawResponseToFile } from "../logger";
 
 
 const logger = parentLogger.child({name: "GAIAdapter"});
@@ -91,6 +91,7 @@ export function translateJAItoGAI(body: JAIRequest, includeThoughts?: boolean, t
 }
 
 export function translateGAItoJAI(body: GenerateContentResponse) {
+  conditionallyLogRawResponseToFile(body);
   const messageContent = body.text;
   const candidate = body.candidates?.[0];
   const model = body.modelVersion;

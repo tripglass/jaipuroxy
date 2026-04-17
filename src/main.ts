@@ -11,8 +11,10 @@ import { initPrompt } from "./customprompt";
 import { ValidateError } from "tsoa";
 import { JAIPuroxyError, RequestError } from "./errors";
 import path from "path";
+import { initDotEnv } from "./dotenv";
 
 async function main() {
+  initDotEnv();
   await initPrompt(); // load once at startup
 
   const app = express();

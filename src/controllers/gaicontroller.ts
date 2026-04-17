@@ -8,6 +8,11 @@ import {
 } from "../adapters/gai";
 import { RequestError, ResponseError } from "../errors";
 import parentLogger, { logTransmittedContextStart } from "../logger";
+import {
+  getEnvGaiApiAuthorizationFree,
+  getEnvGaiApiAuthorizationPaid,
+} from "../dotenv";
+import { unsetInvalidAuthorizationHeader } from "../adapters/util";
 
 const logger = parentLogger.child({ name: "GAIController" });
 
@@ -16,7 +21,7 @@ export class GAIController extends Controller {
   /**
    * Translates a JAI request into a Google AI request, sends it to GAI, then translates the response back to JAI format.
    * @param body Mandatory. The JAI request body.
-   * @param authorization Mandatory. Needs to be 'Bearer <GoogleAI_API_KEY>', automatically set by JAI if you put in your Google AI Studio API key in the proxy config.
+   * @param authorization Needs to be 'Bearer <GoogleAI_API_KEY>', automatically set by JAI if you put in your Google AI Studio API key in the proxy config. If empty/blank, attempts to use .env variables for GAI_API_KEY_PAID (pro models) and GAI_API_KEY_FREE (other models).
    * @param systemPromptMode Optional. Sets "system instructions" which the model will adhere more strictly to. LOCAL loads the system prompt in the server file system, i.e. systemprompt.md - use if you are running it locally, or you want to use the server's "default" system prompt. CONTEXT reads whatever contents put between <systemprompt>...</systemprompt> in the first message of the conversation and uses that as the system prompt. If not specified, no system prompt is set.
    * @param reasoningEffort Optional. Lets you set a determined number of tokens the model may use for reasoning, if you are using a model that is capable of reasoning. Setting this to a positive integer can force gemini-2.5-flash into reasoning mode. For flash: 0 to 24576, for pro: 128 to 32768. -1 lets the model decide.
    * @param logReasoning Optional. For running locally: If available, reasoning will be logged to console.
@@ -30,12 +35,23 @@ export class GAIController extends Controller {
     @Header("authorization") authorization?: string,
     @Query() systemPromptMode?: GAISystemPromptMode,
     @Query() reasoningEffort?: number,
-    @Query() logReasoning?: boolean
+    @Query() logReasoning?: boolean,
   ): Promise<any> {
-    if (!authorization) {
-      logger.warn(RequestError.MISSING_AUTHORIZATION_HEADER);
-      this.setStatus(401);
-      return { error: RequestError.MISSING_AUTHORIZATION_HEADER };
+    authorization = unsetInvalidAuthorizationHeader(authorization);
+    if (!authorization) { 
+      let envPaid = false;
+      if (body.model.toLowerCase().includes("-pro")) {
+        authorization = getEnvGaiApiAuthorizationPaid();
+        envPaid = true;
+      } else {
+        authorization = getEnvGaiApiAuthorizationFree();
+      }
+      if (!authorization) {
+        logger.warn(RequestError.MISSING_AUTHORIZATION_HEADER);
+        this.setStatus(401);
+        return { error: RequestError.MISSING_AUTHORIZATION_HEADER };
+      }
+      logger.info(`Using .env's ${envPaid ? "paid" : "free"} GAI API key`);
     }
     try {
       logger.info("called GAI proxy");
@@ -60,7 +76,7 @@ export class GAIController extends Controller {
         body,
         logReasoning,
         reasoningEffort,
-        systemPromptMode
+        systemPromptMode,
       );
 
       logger.debug("Sending request to GAI");
