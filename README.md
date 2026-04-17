@@ -141,9 +141,11 @@ Once it is running, you can configure your proxy normally: Set the URL and use t
 
 ![Screenshot of "Edit Proxy Configuration" form on Janitor.AI](readme-assets/jaiproxyconf.png)
 
-Here's the [Swagger-UI](https://tripglass.github.io/jaipuroxy/)
+## Swagger
 
-Here are some examples:
+Here's the [Swagger-UI](https://tripglass.github.io/jaipuroxy/).
+
+## Examples
 
 **Gemini:**
 
