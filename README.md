@@ -121,7 +121,7 @@ There is also a dedicated auxiliary `/log` endpoint which doesn't actually trans
 
 JAIPuR can inject API keys from your local environment into your requests so they stay confined to your computer and JAI never saves or even sees them. This is *intended* for when you run JAIPuR as a **local proxy**, not for deploying it somewhere (because anyone with the URL to your public deployment could use your API keys without even knowing them). I'm not your boss but know what you're doing.
 
-It uses [dotenv](https://www.npmjs.com/package/dotenv) so I have an `.env.local` file in the project root on my computer where I just list out the keys. For JAIPuR to use them in requests, replace the contents of the API Key field for the proxy with " " and JAIPuR will resolve the matching API key from your environment. (This workaround is necessary because the JAI UI refuses to let you send requests without a filled-in API key.)
+It uses [dotenv](https://www.npmjs.com/package/dotenv) so I have an `.env` file in the project root on my computer where I just list out the keys. For JAIPuR to use them in requests, replace the contents of the API Key field for the proxy with " " and JAIPuR will resolve the matching API key from your environment. (This workaround is necessary because the JAI UI refuses to let you send requests without a filled-in API key.)
 
 ![Screenshot of a Janitor.AI localhost proxy configuration with a single character in the API Key field.](readme-assets/localapikey.png)
 

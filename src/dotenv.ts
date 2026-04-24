@@ -6,8 +6,7 @@ const logger = parentLogger.child({ name: "EnvironmentResolver" });
 const AUTHORIZATION_PREFIX = "Bearer ";
 
 export function initDotEnv() {
-    dotenv.config(); 
-    logger.info("Environment variables loaded");
+    dotenv.config()
 }
 
 /**

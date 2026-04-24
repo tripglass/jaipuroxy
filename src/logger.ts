@@ -1,6 +1,7 @@
 import pino from "pino";
 import { JAIRequest } from "./adapters/jai";
 import fs from "fs";
+import util from "node:util";
 import path from "path";
 
 console.info(
@@ -47,7 +48,8 @@ export function logTransmittedContextStart(
 
 export function conditionallyLogRawResponseToFile(body: any) {
   if (shouldLogRawResponseToFile) {
-    fileLogger.debug(`Raw Response: ${JSON.stringify(body)}`);
+    //util.inspect is safer because body can include circular references
+    fileLogger.debug(`Raw Response: ${util.inspect(body)}`);
   }
 }
 
